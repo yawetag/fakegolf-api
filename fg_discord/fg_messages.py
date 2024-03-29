@@ -3,6 +3,11 @@ from discord.ext import commands
 
 import keys
 
+async def send_announcement(ctx, message):
+    """Sends announcement message to announcement channel."""
+    hook = Webhook(keys.announcement_webhook)
+    hook.send(message)
+
 async def send_channel(ctx, message):
     """Sends discord message to channel."""
     await ctx.send(f"{ctx.author.mention} : {message}")
@@ -12,6 +17,10 @@ async def send_error(ctx, message):
     hook = Webhook(keys.error_webhook)
     hook.send(message)
 
+async def send_log(ctx, message):
+    """Sends log message to log channel."""
+    hook = Webhook(keys.log_webhook)
+    hook.send(message)
 
 async def send_user(ctx, message):
     """Sends discord private message to user."""

@@ -42,6 +42,39 @@ def db_update(q, v):
     return response
 ###############################################################################
 
+##### CHECK QUERIES ###########################################################
+##### Read ####################################################################
+def get_tournaments_with_status():
+    """Gets tournament information by status_id."""
+    query = '''
+        SELECT t.id, t.tournament_name, t.start_time, t.end_time, t.status_id, u.player_name
+        FROM tournaments t
+        LEFT JOIN users u
+        ON u.id = t.designer_id;
+    '''
+    response = db_read(query)
+
+    return response
+
+def get_tournament_statuses():
+    """Gets list of tournament statuses."""
+    query = "SELECT * FROM status_lookup;"
+    response = db_read(query)
+
+    return response
+###############################################################################
+
+##### Update ##################################################################
+def change_tournament_status(t, c):
+    """Sets tournament `t` to status `c`"""
+    query = "UPDATE tournaments set status_id=%s WHERE id=%s;"
+    variables = (c, t)
+    response = db_update(query, variables)
+
+    return response
+###############################################################################
+###############################################################################
+
 ##### COURSES QUERIES #########################################################
 ##### Read ####################################################################
 def get_all_courses():
