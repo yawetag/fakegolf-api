@@ -1,13 +1,13 @@
-import asyncio
 import discord
+import math
 import os
-import requests
+import time
 
-from discord.ext import commands
+from discord.ext import commands, tasks
 from discord.ext.commands import Bot
-from fastapi import FastAPI
 
 import keys
+import fg_discord.fg_check as check
 
 ##### DISCORD BOT SETUP #######################################################
 TOKEN = keys.discord_token
@@ -40,5 +40,13 @@ async def on_ready():
         if filename.endswith('.py'):
             print(f"   fg_discord.{filename[:-3]}")
             await bot.load_extension(f'fg_discord.{filename[:-3]}')
+    check_tournaments.start()
+
+@tasks.loop(seconds=15)
+async def check_tournaments():
+    curr_time = math.floor(time.time())
+    await check.ck_check_tournaments(curr_time)
+
+
 bot.run(TOKEN)
 ###############################################################################S

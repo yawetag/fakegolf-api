@@ -18,11 +18,13 @@ CREATE TABLE locations_lookup (
 --- Status Lookup table
 --- Stores status of tournaments
 CREATE TABLE status_lookup (
-    id          INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    status_name VARCHAR(25)     NOT NULL,
-    description VARCHAR(500)    NOT NULL,
-    created_on  TIMESTAMP       NOT NULL DEFAULT NOW(),
-    updated_on  TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
+    id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    status_name     VARCHAR(50)     NOT NULL,
+    description     VARCHAR(500)    NOT NULL,
+    error_status    INT             NOT NULL,
+    next_status     INT,
+    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
 --- Users table
@@ -195,19 +197,49 @@ INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) V
 ;
 
 --- Status Lookup Values
-INSERT INTO status_lookup (id, status_name, description) VALUES
-    --- Anything 1XX deals with pre-registration
-    --- Anything 2XX deals with registration
-        --- 20X to 24X is between opening of registration and closing of registration
-        --- 250X to 29X is between closing and starting of tournament
-    --- Anything 3XX deals with the playing of a tournament or round (after registration and before closing)
-    --- Anything 4XX deals with the closing of a tournament
-    (101, "Setting Up", "The tournament organizer is entering data about the tournament."),
-    (201, "Registration Open", "The tournament is open for registration."),
-    (251, "Registration Closed", "The tournament is closed for registration."),
-    (301, "Playing", "The tournament is being played."),
-    (401, "Completed", "The tournament is complete."),
-    (451, "Canceled", "The tournament was canceled.")
+INSERT INTO status_lookup (id, status_name, description, error_status, next_status) VALUES
+    (101, "Starting Tournament Gathering", "The tournament organizer has started giving information about a new tournament.", 10101, 110),
+    (110, "Getting Tournament Name", "The tournament organizer is providing the tournament name.", 10110, 120),
+    (120, "Getting Tournament Length", "The tournament organizer is providing the number of rounds.", 10120, 121),
+    (121, "Getting Round 1 Course", "The tournament organizer is providing the course for the first round.", 10121, 122),
+    (122, "Getting Round 2 Course", "The tournament organizer is providing the course for the second round.", 10122, 123),
+    (123, "Getting Round 3 Course", "The tournament organizer is providing the course for the third round.", 10123, 124),
+    (124, "Getting Round 4 Course", "The tournament organizer is providing the course for the fourth round.", 10124, 125),
+    (125, "Getting Round 5 Course", "The tournament organizer is providing the course for the fifth round.", 10125, 126),
+    (126, "Getting Round 6 Course", "The tournament organizer is providing the course for the sixth round.", 10126, 127),
+    (127, "Getting Round 7 Course", "The tournament organizer is providing the course for the seventh round.", 10127, 128),
+    (128, "Getting Round 8 Course", "The tournament organizer is providing the course for the eighth round.", 10128, 129),
+    (129, "Getting Round 9 Course", "The tournament organizer is providing the course for the ninth round.", 10129, 150),
+    (150, "Waiting for Tournament Sheet Completion", "The tournament organizer is completing the tournament sheet.", 10150, 160),
+    (160, "Checking Sheet Information", "The system is checking the validity of the tournament sheet.", 10160, 161),
+    (161, "Checking Round 1 Sheet", "The system is checking the validity of the first round sheet.", 10161, 162),
+    (162, "Checking Round 2 Sheet", "The system is checking the validity of the second round sheet.", 10162, 163),
+    (163, "Checking Round 3 Sheet", "The system is checking the validity of the third round sheet.", 10163, 164),
+    (164, "Checking Round 4 Sheet", "The system is checking the validity of the fourth round sheet.", 10164, 165),
+    (165, "Checking Round 5 Sheet", "The system is checking the validity of the fifth round sheet.", 10165, 166),
+    (166, "Checking Round 6 Sheet", "The system is checking the validity of the sixth round sheet.", 10166, 167),
+    (167, "Checking Round 7 Sheet", "The system is checking the validity of the seventh round sheet.", 10167, 168),
+    (168, "Checking Round 8 Sheet", "The system is checking the validity of the eighth round sheet.", 10168, 169),
+    (169, "Checking Round 9 Sheet", "The system is checking the validity of the ninth round sheet.", 10169, 201),
+    
+    (201, "Waiting for start of registration", "The tournament is waiting for registration to open.", 10201, 210),
+    (210, "Registration Open", "The tournament is open for registration.", 10210, 250),
+    (250, "Registration Closed", "The tournament is closed for registration.", 10250, 301),
+
+    (301, "Waiting for start of tournament", "The tournament is waiting for the first round to begin.", 10301, 310),
+    (310, "Playing Round 1", "The tournament is playing the first round.", 10310, 320),
+    (320, "Playing Round 2", "The tournament is playing the  round.", 10320, 330),
+    (330, "Playing Round 3", "The tournament is playing the  round.", 10330, 340),
+    (340, "Playing Round 4", "The tournament is playing the  round.", 10340, 350),
+    (350, "Playing Round 5", "The tournament is playing the  round.", 10350, 360),
+    (360, "Playing Round 6", "The tournament is playing the  round.", 10360, 370),
+    (370, "Playing Round 7", "The tournament is playing the  round.", 10370, 380),
+    (380, "Playing Round 8", "The tournament is playing the  round.", 10380, 390),
+    (390, "Playing Round 9", "The tournament is playing the  round.", 10390, 401),
+
+    (401, "Waiting for closing of tournament", "The tournament is waiting to be closed.", 10401, 450),
+    (450, "Tournament Completed", "The tournament has been completed.", 10450, NULL),
+    (490, "Tournament Canceled", "The tournament was canceled before completion.", 10490, NULL)
 ;
 
 --- Icon links
