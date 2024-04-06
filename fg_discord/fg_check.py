@@ -1,7 +1,3 @@
-import asyncio
-import discord
-import requests
-
 from datetime import datetime
 from discord.ext import commands
 
@@ -39,9 +35,9 @@ async def ck_tourn_201(bot, ts, c, t_list):
     """
     Tournament Status 201 Check.
     If the current time is past the `start_time`:
-        * Change the status to 210
+        * Change the status to next status
         * Announce the tournament has started
-    If not, keep status at 201
+    If not, keep status
     """
     ci = c[201]
     
@@ -59,8 +55,8 @@ async def ck_tourn_210(bot, ts, c, t_list):
     """
     Tournamnent Status 210 Check.
     If the current time is past the `end_time`:
-        * Change the status to 212
-    If not, keep status at 210
+        * Change the status to next status
+    If not, keep status
     """
     ci = c[210]
 
@@ -75,7 +71,7 @@ async def ck_tourn_210(bot, ts, c, t_list):
 async def ck_tourn_250(bot, ts, c, t_list):
     """
     Tournament Status 250 Check.
-    Simply moves status to 252.
+    Simply moves status to next status
     """
     ci = c[250]
 
@@ -90,6 +86,8 @@ async def ck_tourn_252(bot, ts, c, t_list):
     """
     Tournament Status 252 Check.
     For each user in a tournament, check they are still in the server.
+    If they aren't, remove them from the tournament.
+    Afterward, move status to next status.
     """
     ci = c[252]
 

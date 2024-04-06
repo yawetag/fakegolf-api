@@ -1,7 +1,3 @@
-import asyncio
-import discord
-import requests
-
 from discord.ext import commands
 from fg_discord.fg_errors import error_notify
 

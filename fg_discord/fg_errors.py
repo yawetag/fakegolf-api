@@ -1,5 +1,4 @@
 from discord.ext import commands
-from dhooks import Webhook
 
 import keys
 

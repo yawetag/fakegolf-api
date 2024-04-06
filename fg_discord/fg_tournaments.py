@@ -1,7 +1,3 @@
-import asyncio
-import discord
-import requests
-
 from discord.ext import commands
 
 import fg_discord.fg_database as db
