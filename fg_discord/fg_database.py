@@ -40,6 +40,14 @@ def db_update(q, v):
     cur.close()
 
     return response
+
+def db_delete(q, v):
+    cur = CONNECTION.cursor()
+    cur.execute(q, v)
+    response = cur.rowcount
+    cur.close()
+
+    return response
 ###############################################################################
 
 ##### CHECK QUERIES ###########################################################
@@ -62,6 +70,35 @@ def get_tournament_statuses():
     response = db_read(query)
 
     return response
+
+def get_tournament_user_snowflake(t):
+    """Gets discord snowflakes for a tournament."""
+    query = '''
+        SELECT u.id, u.discord_snowflake
+        FROM tournament_status ts
+        LEFT JOIN users u ON ts.user_id=u.id
+        WHERE tournament_id=%s;
+    '''
+    variables = (t,)
+    response = db_read(query, variables)
+
+    return response
+###############################################################################
+
+##### DELETE ##################################################################
+def remove_user_from_tournament(t, u):
+    """Removes user from being registered in tournament."""
+    query = '''
+        DELETE FROM tournament_status
+        WHERE
+            tournament_id=%s AND
+            user_id=%s;
+    '''
+    variables = (t, u)
+    response = db_delete(query, variables)
+
+    return response
+###############################################################################
 ###############################################################################
 
 ##### Update ##################################################################

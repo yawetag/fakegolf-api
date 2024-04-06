@@ -45,7 +45,7 @@ async def on_ready():
 @tasks.loop(seconds=15)
 async def check_tournaments():
     curr_time = math.floor(time.time())
-    await check.ck_check_tournaments(curr_time)
+    await check.ck_check_tournaments(bot, curr_time)
 
 
 bot.run(TOKEN)
