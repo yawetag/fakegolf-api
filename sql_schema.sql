@@ -17,7 +17,7 @@ CREATE TABLE locations_lookup (
 
 --- Status Lookup table
 --- Stores status of tournaments
-CREATE TABLE status_lookup (
+CREATE TABLE tournament_status_lookup (
     id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
     status_name     VARCHAR(50)     NOT NULL,
     description     VARCHAR(500)    NOT NULL,
@@ -197,7 +197,7 @@ INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) V
 ;
 
 --- Status Lookup Values
-INSERT INTO status_lookup (id, status_name, description, error_status, next_status) VALUES
+INSERT INTO tournament_status_lookup (id, status_name, description, error_status, next_status) VALUES
     (101, "Starting Tournament Gathering", "The tournament organizer has started giving information about a new tournament.", 10101, 110),
     (110, "Getting Tournament Name", "The tournament organizer is providing the tournament name.", 10110, 120),
     (120, "Getting Tournament Length", "The tournament organizer is providing the number of rounds.", 10120, 121),
@@ -224,7 +224,10 @@ INSERT INTO status_lookup (id, status_name, description, error_status, next_stat
     
     (201, "Waiting for start of registration", "The tournament is waiting for registration to open.", 10201, 210),
     (210, "Registration Open", "The tournament is open for registration.", 10210, 250),
-    (250, "Registration Closed", "The tournament is closed for registration.", 10250, 301),
+    (250, "Registration Closed", "The tournament is closed for registration.", 10250, 252),
+    (252, "Checking Active Users", "Checking that registered users are in the server.", 10252, 254),
+    (254, "Checking Banned Users", "Checking that registered users aren't banned.", 10254, 256),
+    (256, "Checking Non-Playing Users", "Checking that registered users aren't playing in another tournament.", 10256, 301),
 
     (301, "Waiting for start of tournament", "The tournament is waiting for the first round to begin.", 10301, 310),
     (310, "Playing Round 1", "The tournament is playing the first round.", 10310, 320),

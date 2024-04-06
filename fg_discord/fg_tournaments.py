@@ -118,7 +118,7 @@ class Tournaments(commands.Cog):
         user_tourn = Tournaments.t_tournament_list_by_user(self, ctx)
         if organizer == str(ctx.author.id):    # If user is the organizer of the tournament, they can't join
             message = "You are the tournament organizer. You cannot join your own tournament."
-        elif status not in [201]: # If the tournament is not open for registration, they can't join
+        elif status not in [210]: # If the tournament is not open for registration, they can't join
             message = "This tournament is not open for registration."
         elif len(user_tourn) > 0:    # If the user is already in a tournament, they can't join
             message = "You are already playing in a tournament. You can only play one tournament at a time."

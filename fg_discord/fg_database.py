@@ -58,7 +58,7 @@ def get_tournaments_with_status():
 
 def get_tournament_statuses():
     """Gets list of tournament statuses."""
-    query = "SELECT * FROM status_lookup;"
+    query = "SELECT * FROM tournament_status_lookup;"
     response = db_read(query)
 
     return response
@@ -109,7 +109,7 @@ def get_all_tournaments():
         FROM tournaments t
         LEFT JOIN users u ON t.designer_id = u.id
         LEFT JOIN tournament_rounds tr ON tr.tournament_id = t.id
-        LEFT JOIN status_lookup sl on t.status_id = sl.id;
+        LEFT JOIN tournament_status_lookup sl on t.status_id = sl.id;
     '''
     response = db_read(query)
     
