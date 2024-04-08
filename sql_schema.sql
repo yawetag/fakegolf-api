@@ -35,6 +35,7 @@ CREATE TABLE users (
     discord_snowflake	VARCHAR(20),
     is_admin 			BOOLEAN			NOT NULL DEFAULT 0,
     is_official 		BOOLEAN			NOT NULL DEFAULT 0,
+    is_banned           BOOLEAN         NOT NULL DEFAULT 0,
     created_on 			TIMESTAMP		NOT NULL DEFAULT NOW(),
     updated_on 			TIMESTAMP		NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );

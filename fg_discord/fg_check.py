@@ -28,6 +28,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_210(bot, ts, c, t_list)
     await ck_tourn_250(bot, ts, c, t_list)
     await ck_tourn_252(bot, ts, c, t_list)
+    await ck_tourn_254(bot, ts, c, t_list)
     
     return
 
@@ -97,12 +98,34 @@ async def ck_tourn_252(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_snowflake(t['id'])
+            reg_users = db.get_tournament_user_info(t['id'])
             for r in reg_users:
-                print(f"checking: {r}")
                 if guild.get_member(int(r['discord_snowflake'])) is None:    # If user is not active in server, remove them.
                     rem_user = db.remove_user_from_tournament(t['id'], r['id'])
                     log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Inactive User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
+                    await send_log(None, log_ms)
+            
+            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            await log_msg(ts, t, ci, c)
+
+async def ck_tourn_254(bot, ts, c, t_list):
+    """
+    Tournament Status 254 Check.
+    For each user in a tournament, check they are not banned.
+    If they are, remove them from the tournament.
+    Afterward, move status to next status.
+    """
+    ci = c[254]
+
+    await print_log(ci)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            reg_users = db.get_tournament_user_info(t['id'])
+            for r in reg_users:
+                if r['is_banned'] == 1:     # If user is banned from playing, remove them.
+                    rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                    log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Banned User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                     await send_log(None, log_ms)
             
             db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code

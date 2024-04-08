@@ -71,10 +71,10 @@ def get_tournament_statuses():
 
     return response
 
-def get_tournament_user_snowflake(t):
-    """Gets discord snowflakes for a tournament."""
+def get_tournament_user_info(t):
+    """Gets user information for users entered into a tournament."""
     query = '''
-        SELECT u.id, u.discord_snowflake
+        SELECT u.*
         FROM tournament_status ts
         LEFT JOIN users u ON ts.user_id=u.id
         WHERE tournament_id=%s;
