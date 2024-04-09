@@ -71,6 +71,15 @@ def get_tournament_statuses():
 
     return response
 
+def get_tournament_user_games(u):
+    """Gets list of tournaments a user is registered in."""
+    query = "SELECT * FROM tournament_status WHERE user_id=%s"
+    variables = (u,)
+    response = db_read(query, variables)
+
+    return response
+
+
 def get_tournament_user_info(t):
     """Gets user information for users entered into a tournament."""
     query = '''
@@ -81,6 +90,16 @@ def get_tournament_user_info(t):
     '''
     variables = (t,)
     response = db_read(query, variables)
+
+    return response
+###############################################################################
+
+##### Update ##################################################################
+def change_tournament_status(t, c):
+    """Sets tournament `t` to status `c`"""
+    query = "UPDATE tournaments set status_id=%s WHERE id=%s;"
+    variables = (c, t)
+    response = db_update(query, variables)
 
     return response
 ###############################################################################
@@ -96,17 +115,6 @@ def remove_user_from_tournament(t, u):
     '''
     variables = (t, u)
     response = db_delete(query, variables)
-
-    return response
-###############################################################################
-###############################################################################
-
-##### Update ##################################################################
-def change_tournament_status(t, c):
-    """Sets tournament `t` to status `c`"""
-    query = "UPDATE tournaments set status_id=%s WHERE id=%s;"
-    variables = (c, t)
-    response = db_update(query, variables)
 
     return response
 ###############################################################################
