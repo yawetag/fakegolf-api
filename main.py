@@ -45,7 +45,7 @@ async def on_ready():
             await bot.load_extension(f'fg_discord.{filename[:-3]}')
     git_dis1 = subprocess.getoutput("git dis1").replace(" | ","\n")
     git_dis2 = subprocess.getoutput("git dis2")
-    await send_log(None, f"# BOT STARTED\n{git_dis1}\n\n**Diff List:**\n```{git_dis2}```")
+    await send_log(None, f"# BOT STARTED\n{git_dis1}\n\n**Diff List:**\n```{git_dis2 if git_dis2 else 'No updates.'}```")
 
     check_tournaments.start()
 
