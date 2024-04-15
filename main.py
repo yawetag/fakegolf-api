@@ -1,6 +1,7 @@
 import discord
 import math
 import os
+import subprocess
 import time
 
 from discord.ext import commands, tasks
@@ -8,6 +9,8 @@ from discord.ext.commands import Bot
 
 import keys
 import fg_discord.fg_check as check
+
+from fg_discord.fg_messages import send_log
 
 ##### DISCORD BOT SETUP #######################################################
 TOKEN = keys.discord_token
@@ -40,6 +43,10 @@ async def on_ready():
         if filename.endswith('.py'):
             print(f"   fg_discord.{filename[:-3]}")
             await bot.load_extension(f'fg_discord.{filename[:-3]}')
+    git_dis1 = subprocess.getoutput("git dis1").replace(" | ","\n")
+    git_dis2 = subprocess.getoutput("git dis2")
+    await send_log(None, f"# BOT STARTED\n{git_dis1}\n\n**Diff List:**\n```{git_dis2}```")
+
     check_tournaments.start()
 
 @tasks.loop(seconds=15)
