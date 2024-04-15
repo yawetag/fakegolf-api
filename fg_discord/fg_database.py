@@ -55,7 +55,7 @@ def db_delete(q, v):
 def get_tournaments_with_status():
     """Gets tournament information by status_id."""
     query = '''
-        SELECT t.id, t.tournament_name, t.start_time, t.end_time, t.status_id, u.player_name
+        SELECT t.id, t.tournament_name, t.start_time, t.end_time, t.status_id, u.player_name, u.discord_snowflake
         FROM tournaments t
         LEFT JOIN users u
         ON u.id = t.designer_id;

@@ -22,6 +22,12 @@ async def send_log(ctx, message):
     hook = Webhook(keys.log_webhook)
     hook.send(message)
 
+async def send_snow(ctx, snowflake, message):
+    """Sends user a message through Discord snowflake."""
+    user = ctx.get_user(int(snowflake))
+    dm_chan = await user.create_dm()
+    await dm_chan.send(message)
+
 async def send_user(ctx, message):
     """Sends discord private message to user."""
     await ctx.author.send(f"{ctx.author.mention} : {message}")

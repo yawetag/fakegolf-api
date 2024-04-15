@@ -4,7 +4,7 @@ from discord.ext import commands
 import keys
 
 import fg_discord.fg_database as db
-from fg_discord.fg_messages import send_announcement, send_channel, send_log, send_user
+from fg_discord.fg_messages import send_announcement, send_channel, send_log, send_snow, send_user
 from fg_discord.fg_errors import error_notify
 
 ##### CONSTANT VARIABLES ######################################################
@@ -30,6 +30,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_252(bot, ts, c, t_list)
     await ck_tourn_254(bot, ts, c, t_list)
     await ck_tourn_256(bot, ts, c, t_list)
+    await ck_tourn_258(bot, ts, c, t_list)
     
     return
 
@@ -156,6 +157,34 @@ async def ck_tourn_256(bot, ts, c, t_list):
             db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
+async def ck_tourn_258(bot, ts, c, t_list):
+    """
+    Tournament Status 258 Check.
+    Check that the tournament has an active player.
+    If not, notify the tournament organizer and move to completed.
+    If so, move status to the next status.
+    """
+    ci = c[258]
+
+    await print_log(ci)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            reg_users = db.get_tournament_user_info(t['id'])
+            if len(reg_users) == 0:
+                log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] No one registered for tournament | Moved to Canceled."
+                await send_log(None, log_ms)
+
+                note_ms = f"**{t['tournament_name']}** has no active players, so it has been canceled."
+                await send_note(bot, t['discord_snowflake'], note_ms)
+
+                db.change_tournament_status(t['id'], 490)                   # Change to canceled
+                ci['next_status'] = 490
+                await log_msg(ts, t, ci, c)
+            else:
+                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                await log_msg(ts, t, ci, c)
+
 async def ann_msg(msg):
     """Sends message to announcements channel."""
 
@@ -166,6 +195,11 @@ async def log_msg(ts, t, ci, c):
 
     log_msg = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Status Change: **{ci['id']} → {ci['next_status']}** | {ci['status_name']} → {c[ci['next_status']]['status_name']}"
     await send_log(None, log_msg)           # Send change to log channel
+
+async def send_note(bot, u, msg):
+    """Sends message to discord snowflake."""
+
+    await send_snow(bot, u, msg)
 
 async def print_log(ci):
     """Prints log to screen."""
