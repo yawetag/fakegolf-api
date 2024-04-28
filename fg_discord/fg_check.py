@@ -31,6 +31,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_254(bot, ts, c, t_list)
     await ck_tourn_256(bot, ts, c, t_list)
     await ck_tourn_258(bot, ts, c, t_list)
+    await ck_tourn_300(bot, ts, c, t_list)
     
     return
 
@@ -182,6 +183,23 @@ async def ck_tourn_258(bot, ts, c, t_list):
                 ci['next_status'] = 890
                 await log_msg(ts, t, ci, c)
             else:
+                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                await log_msg(ts, t, ci, c)
+
+async def ck_tourn_300(bot, ts, c, t_list):
+    """
+    Tournament Status 300 Check.
+    Check that the start time for the first round is less than or equal to the current time.
+    If so, move to the next status.
+    If not, do nothing.
+    """
+    ci = c[300]
+
+    await print_log(ci)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            if int(t['start_time']) <= ts:  # If the start time has passed, do some work
                 db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
