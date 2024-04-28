@@ -32,6 +32,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_256(bot, ts, c, t_list)
     await ck_tourn_258(bot, ts, c, t_list)
     await ck_tourn_300(bot, ts, c, t_list)
+    await ck_tourn_302(bot, ts, c, t_list)
     
     return
 
@@ -202,6 +203,31 @@ async def ck_tourn_300(bot, ts, c, t_list):
             if int(t['start_time']) <= ts:  # If the start time has passed, do some work
                 db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
+
+async def ck_tourn_302(bot, ts, c, t_list):
+    """
+    Tournament Status 302 Check.
+    For each user in a tournament, check they are still in the server.
+    If they aren't, remove them from the tournament.
+    Afterward, move status to next status.
+    """
+    ci = c[302]
+
+    await print_log(ci)
+
+    guild = bot.get_guild(GUILD_ID)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            reg_users = db.get_tournament_user_info(t['id'])
+            for r in reg_users:
+                if guild.get_member(int(r['discord_snowflake'])) is None:    # If user is not active in server, remove them.
+                    rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                    log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Inactive User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
+                    await send_log(None, log_ms)
+            
+            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            await log_msg(ts, t, ci, c)
 
 async def ann_msg(msg):
     """Sends message to announcements channel."""
