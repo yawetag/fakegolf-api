@@ -68,7 +68,9 @@ async def on_ready():
     git_txt += f"\n"
     git_txt += f"Commit Description:\n"
     git_txt += f"   {git_commit_desc}\n"
-    git_txt += f"Diff List:\n"
+    git_txt += f"```\n"
+    git_txt += f"### Diff List:\n"
+    git_txt += f"```"
     git_txt += f"{git_diff_list if git_diff_list else ' No changes.'}"
     git_txt += f"```"
 
