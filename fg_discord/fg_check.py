@@ -24,6 +24,10 @@ async def ck_check_tournaments(bot, ts):
     print(f"[{dt.strftime('%Y-%m-%d %H:%M:%S')} | {ts}] Checking tournaments...")
 
     # For each status, run the appropriate check for it
+    #   bot     - Discord bot info
+    #   ts      - unix timestamp when fuction was run
+    #   c       - tournament codes
+    #   t_list  - list of tournaments
     await ck_tourn_201(bot, ts, c, t_list)
     await ck_tourn_210(bot, ts, c, t_list)
     await ck_tourn_250(bot, ts, c, t_list)
@@ -35,6 +39,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_302(bot, ts, c, t_list)
     await ck_tourn_304(bot, ts, c, t_list)
     await ck_tourn_306(bot, ts, c, t_list)
+    await ck_tourn_308(bot, ts, c, t_list)
     
     return
 
@@ -277,6 +282,34 @@ async def ck_tourn_306(bot, ts, c, t_list):
             
             db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
+
+async def ck_tourn_308(bot, ts, c, t_list):
+    """
+    Tournament Status 308 Check.
+    Check that the tournament has an active player.
+    If not, notify the tournament organizer and move to completed.
+    If so, move status to the next status.
+    """
+    ci = c[308]
+
+    await print_log(ci)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            reg_users = db.get_tournament_user_info(t['id'])
+            if len(reg_users) == 0:
+                log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] No one registered for tournament | Moved to Canceled."
+                await send_log(None, log_ms)
+
+                note_ms = f"**{t['tournament_name']}** has no active players, so it has been canceled."
+                await send_note(bot, t['discord_snowflake'], note_ms)
+
+                db.change_tournament_status(t['id'], 890)                   # Change to canceled
+                ci['next_status'] = 890
+                await log_msg(ts, t, ci, c)
+            else:
+                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                await log_msg(ts, t, ci, c)
 
 async def ann_msg(msg):
     """Sends message to announcements channel."""
