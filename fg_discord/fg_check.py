@@ -178,8 +178,8 @@ async def ck_tourn_258(bot, ts, c, t_list):
                 note_ms = f"**{t['tournament_name']}** has no active players, so it has been canceled."
                 await send_note(bot, t['discord_snowflake'], note_ms)
 
-                db.change_tournament_status(t['id'], 490)                   # Change to canceled
-                ci['next_status'] = 490
+                db.change_tournament_status(t['id'], 890)                   # Change to canceled
+                ci['next_status'] = 890
                 await log_msg(ts, t, ci, c)
             else:
                 db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
