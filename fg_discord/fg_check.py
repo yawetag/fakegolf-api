@@ -40,6 +40,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_304(bot, ts, c, t_list)
     await ck_tourn_306(bot, ts, c, t_list)
     await ck_tourn_308(bot, ts, c, t_list)
+    await ck_tourn_310(bot, ts, c, t_list)
     
     return
 
@@ -310,6 +311,24 @@ async def ck_tourn_308(bot, ts, c, t_list):
             else:
                 db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
+
+async def ck_tourn_310(bot, ts, c, t_list):
+    """
+    Tournament Status 310 Check.
+    Sends message to tournament organizer to let them know the round is starting.
+    """
+    ci = c[310]
+
+    await print_log(ci)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            reg_users = db.get_tournament_user_info(t['id'])
+            note_ms = f"**{t['tournament_name']}** is starting Round 1 with {len(reg_users)} player!"
+            await send_note(bot, t['discord_snowflake'], note_ms)
+
+            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            await log_msg(ts, t, ci, c)
 
 async def ann_msg(msg):
     """Sends message to announcements channel."""

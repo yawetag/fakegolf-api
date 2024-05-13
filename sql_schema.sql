@@ -236,14 +236,16 @@ INSERT INTO tournament_status_lookup (id, status_name, description, error_status
     (302, "Round 1 - Checking Active Users", "Checking that players are in the server.", 10302, 304, NULL),
     (304, "Round 1 - Checking Banned Users", "Checking that players aren't banned.", 10304, 306, NULL),
     (306, "Round 1 - Checking Non-Playing Users", "Checking that registered users aren't playing in another tournament.", 10306, 308, NULL),
-    (308, "Round 1 - Checking Player Count", "Checking that there is at least one player in the tournament.", 10308, 320, NULL),
+    (308, "Round 1 - Checking Player Count", "Checking that there is at least one player in the tournament.", 10308, 310, NULL),
+    (310, "Round 1 - Notifying Tournament Organizer", "Notifying the Tournament Organizer the tournament is about to begin.", 10310, 312, NULL),
+    (312, "Round 1 - Notifying Players", "Notifying players the tournament is about to begin.", 10312, 320, NULL),
     (320, "Playing Round 1", "The tournament is playing the first round.", 10320, 330, NULL),
 
     (350, "Waiting for start of tournament", "The tournament is waiting for Round 2 to begin.", 10350, 302, NULL),
     (352, "Round 2 - Checking Active Users", "Checking that players are in the server.", 10352, 304, NULL),
     (354, "Round 2 - Checking Banned Users", "Checking that players aren't banned.", 10354, 306, NULL),
     (356, "Round 2 - Checking Non-Playing Users", "Checking that registered users aren't playing in another tournament.", 10356, 308, NULL),
-    (358, "Round 2 - Checking Player Count", "Checking that there is at least one player in the tournament.", 10358, 320, NULL),
+    (358, "Round 2 - Checking Player Count", "Checking that there is at least one player in the tournament.", 10358, 370, NULL),
     (370, "Playing Round 2", "The tournament is playing the second round.", 10370, 380, NULL),
 
     (400, "Waiting for start of tournament", "The tournament is waiting for Round 3 to begin.", 10400, 402, NULL),
