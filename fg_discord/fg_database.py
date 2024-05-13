@@ -52,6 +52,18 @@ def db_delete(q, v):
 
 ##### CHECK QUERIES ###########################################################
 ##### Read ####################################################################
+def get_round_info(tid, round):
+    """Gets information of given round for given tournament."""
+    query = '''
+        SELECT *
+        FROM tournament_rounds tr
+        WHERE tournament_id = %s AND round = %s;
+    '''
+    variables = (tid, round)
+    response = db_read(query, variables)
+
+    return response
+
 def get_tournaments_with_status():
     """Gets tournament information by status_id."""
     query = '''

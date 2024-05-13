@@ -41,6 +41,7 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_306(bot, ts, c, t_list)
     await ck_tourn_308(bot, ts, c, t_list)
     await ck_tourn_310(bot, ts, c, t_list)
+    await ck_tourn_312(bot, ts, c, t_list)
     
     return
 
@@ -208,7 +209,8 @@ async def ck_tourn_300(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            if int(t['start_time']) <= ts:  # If the start time has passed, do some work
+            round_times = db.get_round_info(t['id'], 1)
+            if round_times['start_time'] <= ts: # If the start time has passed, do some work
                 db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
@@ -327,6 +329,27 @@ async def ck_tourn_310(bot, ts, c, t_list):
             note_ms = f"**{t['tournament_name']}** is starting Round 1 with {len(reg_users)} player!"
             await send_note(bot, t['discord_snowflake'], note_ms)
 
+            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            await log_msg(ts, t, ci, c)
+
+async def ck_tourn_312(bot, ts, c, t_list):
+    """
+    Tournament Status 312 Check.
+    Sends message to each player to let them know the round is starting.
+    """
+    ci = c[312]
+
+    await print_log(ci)
+
+    for t in t_list:
+        if t['status_id'] == ci['id']:
+            reg_users = db.get_tournament_user_info(t['id'])
+            round_times = db.get_round_info(t['id'], 1)[0]
+
+            for u in reg_users:
+                note_ms = f"**{t['tournament_name']}** is starting Round 1. You have until <t:{round_times['end_time']}:F> in your timezone (<t:{round_times['end_time']}:R>) to complete the round."
+                await send_note(bot, u['discord_snowflake'], note_ms)
+            
             db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
