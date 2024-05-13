@@ -346,7 +346,8 @@ async def ck_tourn_312(bot, ts, c, t_list):
             reg_users = db.get_tournament_user_info(t['id'])
             round_times = db.get_round_info(t['id'], 1)[0]
 
-            for u in reg_users:
+            for u in reg_users:     # For each user in the tournament, set their status and send them a message.
+                start_user = db.start_user_round(t['id'], u['id'], 1)
                 note_ms = f"**{t['tournament_name']}** is starting Round 1. You have until <t:{round_times['end_time']}:F> in your timezone (<t:{round_times['end_time']}:R>) to complete the round."
                 await send_note(bot, u['discord_snowflake'], note_ms)
             

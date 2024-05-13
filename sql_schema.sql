@@ -168,6 +168,7 @@ CREATE TABLE tournament_status (
     user_id         INT         NOT NULL,
     round           INT         NOT NULL DEFAULT 0,
     hole            INT         NOT NULL DEFAULT 0,
+    shot            INT         NOT NULL DEFAULT 0,
     created_on      TIMESTAMP   NOT NULL DEFAULT NOW(),
     updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );

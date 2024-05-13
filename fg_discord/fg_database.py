@@ -109,8 +109,20 @@ def get_tournament_user_info(t):
 ##### Update ##################################################################
 def change_tournament_status(t, c):
     """Sets tournament `t` to status `c`"""
-    query = "UPDATE tournaments set status_id=%s WHERE id=%s;"
+    query = "UPDATE tournaments SET status_id=%s WHERE id=%s;"
     variables = (c, t)
+    response = db_update(query, variables)
+
+    return response
+
+def start_user_round(t, u, r):
+    """Sets user `u` to start round `r` on tournament `t`"""
+    query = '''
+        UPDATE tournament_status
+        SET round=%s, hole=1, shot=1
+        WHERE tournament_id=%s AND user_id=%s;
+    '''
+    variables = (r, t, u)
     response = db_update(query, variables)
 
     return response
