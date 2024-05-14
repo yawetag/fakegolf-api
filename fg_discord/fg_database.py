@@ -119,7 +119,7 @@ def start_user_round(t, u, r):
     """Sets user `u` to start round `r` on tournament `t`"""
     query = '''
         UPDATE tournament_status
-        SET round=%s, hole=1, shot=1
+        SET round=%s, hole=1, shot=1, location_id=1
         WHERE tournament_id=%s AND user_id=%s;
     '''
     variables = (r, t, u)
