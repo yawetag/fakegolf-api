@@ -209,8 +209,8 @@ async def ck_tourn_300(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            round_times = db.get_round_info(t['id'], 1)
-            if round_times['start_time'] <= ts: # If the start time has passed, do some work
+            round_times = db.get_round_info(t['id'], 1)[0]
+            if int(round_times['start_time']) <= ts: # If the start time has passed, do some work
                 db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
