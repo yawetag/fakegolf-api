@@ -44,17 +44,25 @@ CREATE TABLE users (
 --- Courses table
 --- Stores data on courses
 CREATE TABLE courses (
-    id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    course_name     VARCHAR(100)    NOT NULL,
-    designer_id     INT NOT NULL,
-    course_image    VARCHAR(500),
-    course_url      VARCHAR(500),
-    par             INT             NOT NULL,
-    yardage         INT             NOT NULL,
-    expected_par    DECIMAL(4,2),
-    scratch_par     INT,
-    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
-    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
+    id                  INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    course_name         VARCHAR(100)    NOT NULL,
+    designer_id         INT NOT NULL,
+    course_image        VARCHAR(500),
+    course_url          VARCHAR(500),
+    par                 INT             NOT NULL,
+    yardage             INT             NOT NULL,
+    rough_penalty       INT             NOT NULL DEFAULT 100,
+    deep_rough_penalty  INT             NOT NULL DEFAULT 150,
+    bunker_penalty      INT             NOT NULL DEFAULT 150,
+    oob_bonus           INT             NOT NULL DEFAULT 25,
+    water_bonus         INT             NOT NULL DEFAULT 25,
+    drive_bonus         INT             NOT NULL DEFAULT 50,
+    drive_bonus_min     INT             NOT NULL DEFAULT 0,
+    drive_bonus_max     INT             NOT NULL DEFAULT 50,
+    expected_par        DECIMAL(4,2),
+    scratch_par         INT,
+    created_on          TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on          TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
 --- Courses Trees table
@@ -213,6 +221,7 @@ CREATE TABLE shot_log (
 --- Locations Lookup Values
 INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) VALUES
     (101, "In the hole", NULL, NULL, "hole"),
+    (200, "Green", "Tap in", NULL, "green"),
     (201, "Green", "Close", NULL, "green"),
     (211, "Green", "Short", NULL, "green"),
     (221, "Green", "Average", NULL, "green"),
@@ -221,14 +230,17 @@ INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) V
     (251, "Green", "Super Long", NULL, "green"),
     (301, "Greenside", "Fairway", NULL, "fairway"),
     (311, "Greenside", "Rough", "rough", "rough"),
+    (316, "Greenside", "Deep Rough", "deep_rough", "rough"),
     (321, "Greenside", "Bunker", "bunker", "bunker"),
     (331, "Greenside", "Trees", "trees", "trees"),
     (401, "Third", "Fairway", NULL, "fairway"),
     (411, "Third", "Rough", "rough", "rough"),
+    (416, "Third", "Deep Rough", "deep_rough", "rough"),
     (421, "Third", "Bunker", "bunker", "bunker"),
     (431, "Third", "Trees", "trees", "trees"),
     (501, "Second", "Fairway", NULL, "fairway"),
     (511, "Second", "Rough", "rough", "rough"),
+    (516, "Second", "Deep Rough", "deep_rough", "rough"),
     (521, "Second", "Bunker", "bunker", "bunker"),
     (531, "Second", "Trees", "trees", "trees"),
     (601, "Out of Bounds", NULL, "oob", "oob"),
