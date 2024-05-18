@@ -19,7 +19,6 @@ async def ck_check_tournaments(bot, ts):
 
     t_list = db.get_tournaments_with_status()
 
-
     print()
     print(f"[{dt.strftime('%Y-%m-%d %H:%M:%S')} | {ts}] Checking tournaments...")
 
@@ -44,6 +43,27 @@ async def ck_check_tournaments(bot, ts):
     await ck_tourn_312(bot, ts, c, t_list)
     
     return
+
+async def ck_check_shots(bot, ts):
+    """Checks status of shots."""
+    dt = datetime.fromtimestamp(ts)
+    codes = db.get_shot_statuses()
+    c = {obj[id]:obj for obj in codes}
+
+    s_list = db.get_shots_with_status()
+
+    print()
+    print(f"[{dt.strftime('%Y-%m-%d %H:%M:%S')} | {ts}] Checking shots...")
+
+    # For each status, run the appropriate check for it
+    #   bot     - Discord bot info
+    #   ts      - unix timestamp when fuction was run
+    #   c       - tournament codes
+    #   s_list  - list of tournaments
+
+
+    return
+
 
 async def ck_tourn_201(bot, ts, c, t_list):
     """

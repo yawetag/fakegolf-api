@@ -1,48 +1,10 @@
---- Delete database and add again
+-- Delete database and add again
 DROP DATABASE IF EXISTS fake_golf;
 CREATE DATABASE fake_golf;
 USE fake_golf;
 
---- Locations Lookup table
---- Stores list of locations
-CREATE TABLE locations_lookup (
-    id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    location_name   VARCHAR(25)     NOT NULL,
-    modifier_name   VARCHAR(25),
-    special         VARCHAR(25),
-    icon            VARCHAR(50),
-    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
-    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
---- Status Lookup table
---- Stores status of tournaments
-CREATE TABLE tournament_status_lookup (
-    id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    status_name     VARCHAR(50)     NOT NULL,
-    description     VARCHAR(500)    NOT NULL,
-    error_status    INT             NOT NULL,
-    next_status     INT,
-    back_status     INT,
-    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
-    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
---- Users table
---- Tracks the information of the players in the game
-CREATE TABLE users (
-	id 					INT				NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    player_name 		VARCHAR(40)		NOT NULL,
-    discord_snowflake	VARCHAR(20),
-    is_admin 			BOOLEAN			NOT NULL DEFAULT 0,
-    is_official 		BOOLEAN			NOT NULL DEFAULT 0,
-    is_banned           BOOLEAN         NOT NULL DEFAULT 0,
-    created_on 			TIMESTAMP		NOT NULL DEFAULT NOW(),
-    updated_on 			TIMESTAMP		NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
---- Courses table
---- Stores data on courses
+-- Courses table
+-- Stores data on courses
 CREATE TABLE courses (
     id                  INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
     course_name         VARCHAR(100)    NOT NULL,
@@ -65,9 +27,23 @@ CREATE TABLE courses (
     updated_on          TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
---- Courses Trees table
---- Gives results for shots from trees. Because each course can be different,
----     we store these with courses.id
+-- Courses Putting table
+-- Gives results for putting. Because each course can be different,
+--     we store these with courses.id
+CREATE TABLE courses_putting (
+    id                  INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    course_id           INT         NOT NULL,
+    curr_location_id    INT         NOT NULL,
+    start_diff          INT         NOT NULL,
+    end_diff            INT         NOT NULL,
+    new_location_id     INT         NOT NULL,
+    created_on          TIMESTAMP   NOT NULL DEFAULT NOW(),
+    updated_on          TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Courses Trees table
+-- Gives results for shots from trees. Because each course can be different,
+--     we store these with courses.id
 CREATE TABLE courses_trees (
     id                      INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     course_id               INT         NOT NULL,
@@ -80,22 +56,8 @@ CREATE TABLE courses_trees (
     updated_on              TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
---- Courses Putting table
---- Gives results for putting. Because each course can be different,
----     we store these with courses.id
-CREATE TABLE courses_putting (
-    id                  INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    course_id           INT         NOT NULL,
-    curr_location_id    INT         NOT NULL,
-    start_diff          INT         NOT NULL,
-    end_diff            INT         NOT NULL,
-    new_location_id     INT         NOT NULL,
-    created_on          TIMESTAMP   NOT NULL DEFAULT NOW(),
-    updated_on          TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
---- Holes table
---- Stores data on individual holes for courses
+-- Holes table
+-- Stores data on individual holes for courses
 CREATE TABLE holes (
     id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
     course_id       INT             NOT NULL,
@@ -110,8 +72,8 @@ CREATE TABLE holes (
     updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
---- Hole Shots table
---- Stores each hole's shot information.
+-- Hole Shots table
+-- Stores each hole's shot information.
 CREATE TABLE hole_shots (
     id                  INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     hole_id             INT         NOT NULL,
@@ -123,66 +85,20 @@ CREATE TABLE hole_shots (
     updated_on          TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
---- Tournaments
---- List of tournaments
-CREATE TABLE tournaments (
-    id                  INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    tournament_name     VARCHAR(100)    NOT NULL,
-    designer_id         INT NOT NULL,
-    tournament_image    VARCHAR(500),
-    description         VARCHAR(500),
-    start_time          VARCHAR(25)     NOT NULL,
-    end_time            VARCHAR(25)     NOT NULL,
-    status_id           INT             NOT NULL,
-    created_on          TIMESTAMP       NOT NULL DEFAULT NOW(),
-    updated_on          TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
+-- Locations Lookup table
+-- Stores list of locations
+CREATE TABLE locations_lookup (
+    id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    location_name   VARCHAR(25)     NOT NULL,
+    modifier_name   VARCHAR(25),
+    special         VARCHAR(25),
+    icon            VARCHAR(50),
+    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
---- Tournament Rounds
---- Lists rounds of a tournament
-CREATE TABLE tournament_rounds (
-    id              INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    tournament_id   INT         NOT NULL,
-    round           INT         NOT NULL,
-    course_id       INT         NOT NULL,
-    start_time      VARCHAR(25) NOT NULL,
-    end_time        VARCHAR(25) NOT NULL,
-    created_on      TIMESTAMP   NOT NULL DEFAULT NOW(),
-    updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
---- Tournament Targets
---- Lists target shots for each hole in a tournament round
-CREATE TABLE tournament_targets (
-    id                      INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    round_id                INT         NOT NULL,
-    hole                    INT         NOT NULL,
-    shot_1                  INT,
-    shot_2                  INT,
-    shot_3                  INT,
-    shot_4                  INT,
-    shot_5                  INT,
-    shot_6                  INT,
-    shot_7                  INT,
-    shot_8                  INT,
-    shot_9                  INT,
-    created_on              TIMESTAMP   NOT NULL DEFAULT NOW(),
-    updated_on              TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
-CREATE TABLE tournament_status (
-    id              INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
-    tournament_id   INT         NOT NULL,
-    user_id         INT         NOT NULL,
-    round           INT         NOT NULL DEFAULT 0,
-    hole            INT         NOT NULL DEFAULT 0,
-    shot            INT         NOT NULL DEFAULT 0,
-    location_id     INT         NOT NULL DEFAULT 0,
-    status_id       INT,
-    created_on      TIMESTAMP   NOT NULL DEFAULT NOW(),
-    updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
-);
-
+-- Shot Log
+-- Logs all shots
 CREATE TABLE shot_log (
     id                  INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
     -- Setting Information
@@ -219,7 +135,95 @@ CREATE TABLE shot_log (
     shot_result_time    TIMESTAMP       -- time of when shot was resulted
 );
 
---- Locations Lookup Values
+-- Tournaments
+-- List of tournaments
+CREATE TABLE tournaments (
+    id                  INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    tournament_name     VARCHAR(100)    NOT NULL,
+    designer_id         INT NOT NULL,
+    tournament_image    VARCHAR(500),
+    description         VARCHAR(500),
+    start_time          VARCHAR(25)     NOT NULL,
+    end_time            VARCHAR(25)     NOT NULL,
+    status_id           INT             NOT NULL,
+    created_on          TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on          TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Tournament Rounds
+-- Lists rounds of a tournament
+CREATE TABLE tournament_rounds (
+    id              INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    tournament_id   INT         NOT NULL,
+    round           INT         NOT NULL,
+    course_id       INT         NOT NULL,
+    start_time      VARCHAR(25) NOT NULL,
+    end_time        VARCHAR(25) NOT NULL,
+    created_on      TIMESTAMP   NOT NULL DEFAULT NOW(),
+    updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Tournament Status
+-- Tracks the status of users in a tournament
+CREATE TABLE tournament_status (
+    id              INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    tournament_id   INT         NOT NULL,
+    user_id         INT         NOT NULL,
+    round           INT         NOT NULL DEFAULT 0,
+    hole            INT         NOT NULL DEFAULT 0,
+    shot            INT         NOT NULL DEFAULT 0,
+    location_id     INT         NOT NULL DEFAULT 0,
+    status_id       INT,
+    created_on      TIMESTAMP   NOT NULL DEFAULT NOW(),
+    updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Status Lookup table
+-- Stores status of tournaments
+CREATE TABLE tournament_status_lookup (
+    id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    status_name     VARCHAR(50)     NOT NULL,
+    description     VARCHAR(500)    NOT NULL,
+    error_status    INT             NOT NULL,
+    next_status     INT,
+    back_status     INT,
+    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Tournament Targets
+-- Lists target shots for each hole in a tournament round
+CREATE TABLE tournament_targets (
+    id                      INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    round_id                INT         NOT NULL,
+    hole                    INT         NOT NULL,
+    shot_1                  INT,
+    shot_2                  INT,
+    shot_3                  INT,
+    shot_4                  INT,
+    shot_5                  INT,
+    shot_6                  INT,
+    shot_7                  INT,
+    shot_8                  INT,
+    shot_9                  INT,
+    created_on              TIMESTAMP   NOT NULL DEFAULT NOW(),
+    updated_on              TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Users table
+-- Tracks the information of the players in the game
+CREATE TABLE users (
+	id 					INT				NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    player_name 		VARCHAR(40)		NOT NULL,
+    discord_snowflake	VARCHAR(20),
+    is_admin 			BOOLEAN			NOT NULL DEFAULT 0,
+    is_official 		BOOLEAN			NOT NULL DEFAULT 0,
+    is_banned           BOOLEAN         NOT NULL DEFAULT 0,
+    created_on 			TIMESTAMP		NOT NULL DEFAULT NOW(),
+    updated_on 			TIMESTAMP		NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Locations Lookup Values
 INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) VALUES
     (101, "In the hole", NULL, NULL, "hole"),
     (200, "Green", "Tap in", NULL, "green"),
@@ -249,7 +253,7 @@ INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) V
     (999, "Tee Box", NULL, NULL, "tee")
 ;
 
---- Status Lookup Values
+-- Tournament Status Lookup Values
 INSERT INTO tournament_status_lookup (id, status_name, description, error_status, next_status, back_status) VALUES
     (101, "Starting Tournament Gathering", "The tournament organizer has started giving information about a new tournament.", 10101, 110, NULL),
     (110, "Getting Tournament Name", "The tournament organizer is providing the tournament name.", 10110, 120, 110),
@@ -353,5 +357,17 @@ INSERT INTO tournament_status_lookup (id, status_name, description, error_status
     (890, "Tournament Canceled", "The tournament was canceled before completion.", 10890, NULL, NULL)
 ;
 
---- Icon links
---- https://www.flaticon.com/packs/golf-76?word=golf
+-- Shot Status Lookup Values
+INSERT INTO shot_status_lookup (id, status_name, description, error_status, next_status, back_status) VALUES
+    (100, "Send Shot Location", "The user is receiving their status.", 10100, 200, NULL),
+    (200, "Waiting on Shot", "The system is waiting on the user to swing.", 10200, 300, NULL),
+    (300, "Calculate Shot", "The system is calculating the shot result.", 10300, 350, NULL),
+    (350, "Send Shot Result", "The user is receiving their shot result.", 10350, 400, NULL),
+    (400, "Check Hole Status", "The system is checking the status of the hole.", 10400, 425, 100),
+    (425, "Check Round Status", "The system is checking the status of the round.", 10425, 450, 100),
+    (450, "Check Tournament Status", "The system is checking the status of the tournament.", 10450, 500, 100),
+    (500, "Complete", "The user is complete.", 10500, NULL, NULL)
+;
+
+-- Icon links
+-- https://www.flaticon.com/packs/golf-76?word=golf

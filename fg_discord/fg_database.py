@@ -64,6 +64,21 @@ def get_round_info(tid, round):
 
     return response
 
+def get_shot_statuses():
+    """Gets list of shot statuses."""
+    query = "SELECT * FROM shot_status_lookup;"
+    response = db_read(query)
+
+    return response
+
+def get_shots_with_status():
+    """Gets shot information by status_id."""
+    query = '''
+        SELECT t.id, t.tournament_id, t.user_id, t.round, t.hole, t.shot, t.location_id, t.status_id
+        FROM tournament_status t;
+    '''
+
+
 def get_tournaments_with_status():
     """Gets tournament information by status_id."""
     query = '''

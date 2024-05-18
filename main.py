@@ -78,13 +78,13 @@ async def on_ready():
     await send_log(None, f"{git_txt}")
 
     # Start loop for checking tournaments
-    check_tournaments.start()
+    check_statuses.start()
 
 @tasks.loop(seconds=15)
-async def check_tournaments():
+async def check_statuses():
     curr_time = math.floor(time.time())
     await check.ck_check_tournaments(bot, curr_time)
-
+    await check.ck_check_shots(bot, curr_time)
 
 bot.run(TOKEN)
 ###############################################################################S
