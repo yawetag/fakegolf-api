@@ -48,7 +48,7 @@ async def ck_check_shots(bot, ts):
     """Checks status of shots."""
     dt = datetime.fromtimestamp(ts)
     codes = db.get_shot_statuses()
-    c = {obj[id]:obj for obj in codes}
+    c = {obj['id']:obj for obj in codes}
 
     s_list = db.get_shots_with_status()
 
