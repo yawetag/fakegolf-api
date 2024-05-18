@@ -174,30 +174,66 @@ CREATE TABLE tournament_status (
     updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
+CREATE TABLE shot_log (
+    id                  INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    -- Setting Information
+    tournament_id       INT,            -- tournaments.id
+    round_id            INT,            -- tournament_rounds.id
+    round_num           INT,            -- actual round number
+    course_id           INT,            -- courses.id
+    hole_id             INT,            -- holes.id
+    hole_num            INT,            -- actual hole number
+    user_id             INT,            -- users.id
+    player_name         VARCHAR(40),    -- actual player name
+    -- Pre-Shot Info
+    shot_num            INT,            -- shot number
+    location_id         INT,            -- locations_lookup.id
+    location_name       VARCHAR(25),    -- actual location name
+    modifier_name       VARCHAR(25),    -- actual modifier name
+    rough_penalty       INT,            -- value of penalty for being in the rough
+    deep_rough_penalty  INT,            -- value of penalty for being in the deep rough
+    bunker_penalty      INT,            -- value of penalty for being in the bunker
+    oob_bonus           INT,            -- value of bonus for hitting out of bounds
+    water_bonus         INT,            -- value of bonus for hitting in the water
+    drive_bonus         INT,            -- value of bonus for good drive
+    shot_request_time   TIMESTAMP,      -- time of when shot was requested by bot
+    -- Shot Info
+    user_shot           INT,            -- user's shot guess
+    shot_send_time      TIMESTAMP,      -- time of when shot was received
+    -- Post-Shot Info
+    target_num          INT,            -- target number for shot
+    diff_num            INT,            -- difference between shot and target
+    new_shot_num        INT,            -- new shot number
+    new_location_id     INT,            -- new locations_lookup.id
+    new_location_name   VARCHAR(25),    -- new actual location name
+    new_modifier_name   VARCHAR(25),    -- new actual modifier name
+    shot_result_time    TIMESTAMP       -- time of when shot was resulted
+);
+
 --- Locations Lookup Values
 INSERT INTO locations_lookup (id, location_name, modifier_name, special, icon) VALUES
-    (1, "In the hole", NULL, NULL, "hole"),
-    (2, "Green", "Close", NULL, "green"),
-    (3, "Green", "Short", NULL, "green"),
-    (4, "Green", "Average", NULL, "green"),
-    (5, "Green", "Medium", NULL, "green"),
-    (6, "Green", "Long", NULL, "green"),
-    (7, "Green", "Super Long", NULL, "green"),
-    (8, "Greenside", "Fairway", NULL, "fairway"),
-    (9, "Greenside", "Rough", "rough", "rough"),
-    (10, "Greenside", "Bunker", "bunker", "bunker"),
-    (11, "Greenside", "Trees", "trees", "trees"),
-    (12, "Third", "Fairway", NULL, "fairway"),
-    (13, "Third", "Rough", "rough", "rough"),
-    (14, "Third", "Bunker", "bunker", "bunker"),
-    (15, "Third", "Trees", "trees", "trees"),
-    (16, "Second", "Fairway", NULL, "fairway"),
-    (17, "Second", "Rough", "rough", "rough"),
-    (18, "Second", "Bunker", "bunker", "bunker"),
-    (19, "Second", "Trees", "trees", "trees"),
-    (20, "Out of Bounds", NULL, "oob", "oob"),
-    (21, "Water", NULL, "water", "water"),
-    (22, "Tee Box", NULL, NULL, "tee")
+    (101, "In the hole", NULL, NULL, "hole"),
+    (201, "Green", "Close", NULL, "green"),
+    (211, "Green", "Short", NULL, "green"),
+    (221, "Green", "Average", NULL, "green"),
+    (231, "Green", "Medium", NULL, "green"),
+    (241, "Green", "Long", NULL, "green"),
+    (251, "Green", "Super Long", NULL, "green"),
+    (301, "Greenside", "Fairway", NULL, "fairway"),
+    (311, "Greenside", "Rough", "rough", "rough"),
+    (321, "Greenside", "Bunker", "bunker", "bunker"),
+    (331, "Greenside", "Trees", "trees", "trees"),
+    (401, "Third", "Fairway", NULL, "fairway"),
+    (411, "Third", "Rough", "rough", "rough"),
+    (421, "Third", "Bunker", "bunker", "bunker"),
+    (431, "Third", "Trees", "trees", "trees"),
+    (501, "Second", "Fairway", NULL, "fairway"),
+    (511, "Second", "Rough", "rough", "rough"),
+    (521, "Second", "Bunker", "bunker", "bunker"),
+    (531, "Second", "Trees", "trees", "trees"),
+    (601, "Out of Bounds", NULL, "oob", "oob"),
+    (701, "Water", NULL, "water", "water"),
+    (999, "Tee Box", NULL, NULL, "tee")
 ;
 
 --- Status Lookup Values
