@@ -60,8 +60,6 @@ async def ck_check_shots(bot, ts):
     #   ts      - unix timestamp when fuction was run
     #   c       - tournament codes
     #   s_list  - list of tournaments
-    print(f"c: {c}")
-    print(f"s_list: {s_list}")
 
     return
 
