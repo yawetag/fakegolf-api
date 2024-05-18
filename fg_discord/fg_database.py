@@ -77,6 +77,9 @@ def get_shots_with_status():
         SELECT t.id, t.tournament_id, t.user_id, t.round, t.hole, t.shot, t.location_id, t.status_id
         FROM tournament_status t;
     '''
+    response = db_read(query)
+
+    return response
 
 
 def get_tournaments_with_status():

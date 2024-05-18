@@ -178,7 +178,20 @@ CREATE TABLE tournament_status (
     updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
--- Status Lookup table
+-- Shot Status Lookup table
+-- Stores status of shots
+CREATE TABLE shot_status_lookup (
+    id      INT     NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    status_name     VARCHAR(50)     NOT NULL,
+    description     VARCHAR(500)    NOT NULL,
+    error_status    INT             NOT NULL,
+    next_status     INT,
+    back_status     INT,
+    created_on      TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on      TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
+);
+
+-- Tournament Status Lookup table
 -- Stores status of tournaments
 CREATE TABLE tournament_status_lookup (
     id              INT             NOT NULL PRIMARY KEY AUTO_INCREMENT,
