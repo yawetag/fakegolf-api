@@ -61,8 +61,87 @@ async def ck_check_shots(bot, ts):
     #   c       - tournament codes
     #   s_list  - list of tournaments
 
+    await ck_shot_50(bot, ts, c, s_list)
+    await ck_shot_100(bot, ts, c, s_list)
+
     return
 
+async def ck_shot_50(bot, ts, c, s_list):
+    """
+    Shot Status 50 Check.
+    Creates new entry into shot_log.
+    """
+    ci = c[50]
+
+    await print_log(ci)
+
+    for s in s_list:
+        if s['status_id'] == ci['id']:  # Create new shot log
+            tr = db.get_tournament_rounds(s['tournament_id'], s['round'])[0]    # Get tournament_rounds info
+            h = db.get_holes(tr['course_id'], s['hole'])[0]                     # Get holes info
+            cb = db.get_courses(tr['course_id'])[0]                             # Get courses info
+            bp = {
+                'rough': 0,
+                'deep_rough' : 0,
+                'bunker' : 0,
+                'oob' : 0,
+                'water' : 0,
+                'drive' : 0,
+            }
+            if s['shot'] > 1 and s['shot_id']:
+                ls = db.get_shot_log(s['shot_id'])[0]                           # Get last shot info
+            else:
+                ls = {}
+            
+            if len(ls) > 0:     # If we have last shot info, determine if there are any bonuses or penalties
+                if ls['new_modifier_name'] == "Rough":
+                    bp['rough'] == cb['rough_penalty']
+                if ls['new_modifier_name'] == "Deep Rough":
+                    bp['deep_rough'] == cb['deep_rough_penalty']
+                if ls['new_modifier_name'] == 'Bunker':
+                    bp['bunker'] == cb['bunker_penalty']
+                if ls['location_name'] == "Out of Bounds":
+                    bp['oob'] == cb['oob_bonus']
+                if ls['location_name'] == "Water":
+                    bp['water'] == cb['water_bonus']
+                if (h['par'] >= 4) and (s['shot'] == 2) and (cb['drive_bonus_min'] <= ls['diff_num'] <= cb['drive_bonus_max']):
+                    bp['drive'] == cb['drive_bonus']
+            
+            # Now that we have all the info we need, let's start a new shot log and get the id for it
+            print(f"tournament_rounds: {tr}")
+            print(f"holes: {h}")
+            print(f"bonuses: {bp}")
+            print(f"tournament_status: {s}")
+            shot_id = db.add_shot_to_shot_log(tr, h, bp, s)
+
+            # Insert shot_id into the shot information
+            shot_ins = db.update_shotid_to_tournament_status(s['id'], shot_id)
+
+            db.change_shot_status(s['id'], ci['next_status'])           # Change to next code
+
+async def ck_shot_100(bot, ts, c, s_list):
+    """
+    Shot Status 100 Check.
+    Sends user a shot request.
+    """
+    ci = c[100]
+
+    await print_log(ci)
+
+    for s in s_list:
+        if s['status_id'] == ci['id']:  # Send user a DM, requesting a new shot
+            note_ms = "It's time to shoot!\n"
+            note_ms += f"> **{s['tournament_name']}**\n"
+            note_ms += f"> Round: {s['round']} | Hole: {s['hole']} | Shot: {s['shot']}\n"
+            note_ms += f"> Location: {s['location_name']}"
+            if s['modifier_name'] is not None:
+                note_ms += f" - {s['modifier_name']}\n"
+            else:
+                note_ms += f"\n"
+            note_ms += f"Enter your shot with `.shoot <number>`"
+
+            await send_note(bot, s['discord_snowflake'], note_ms)
+            db.change_shot_status(s['id'], ci['next_status'])           # Change to next code
 
 async def ck_tourn_201(bot, ts, c, t_list):
     """

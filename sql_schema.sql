@@ -173,6 +173,7 @@ CREATE TABLE tournament_status (
     hole            INT         NOT NULL DEFAULT 0,
     shot            INT         NOT NULL DEFAULT 0,
     location_id     INT         NOT NULL DEFAULT 0,
+    shot_id         INT,
     status_id       INT,
     created_on      TIMESTAMP   NOT NULL DEFAULT NOW(),
     updated_on      TIMESTAMP   NOT NULL DEFAULT NOW() ON UPDATE NOW()
@@ -372,6 +373,7 @@ INSERT INTO tournament_status_lookup (id, status_name, description, error_status
 
 -- Shot Status Lookup Values
 INSERT INTO shot_status_lookup (id, status_name, description, error_status, next_status, back_status) VALUES
+    (50, "Update shot_log", "The system is writing the new shot to the log.", 10050, 100, NULL),
     (100, "Send Shot Location", "The user is receiving their status.", 10100, 200, NULL),
     (200, "Waiting on Shot", "The system is waiting on the user to swing.", 10200, 300, NULL),
     (300, "Calculate Shot", "The system is calculating the shot result.", 10300, 350, NULL),

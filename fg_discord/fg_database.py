@@ -52,6 +52,26 @@ def db_delete(q, v):
 
 ##### CHECK QUERIES ###########################################################
 ##### Read ####################################################################
+def get_courses(c):
+    """Gets courses information of course_id `c`."""
+    query = '''
+        SELECT * FROM courses WHERE id=%s;
+    '''
+    variables = (c,)
+    response = db_read(query, variables)
+
+    return response
+
+def get_holes(c, h):
+    """Gets holes information of course_id `c` and hole `h`."""
+    query = '''
+        SELECT * FROM holes WHERE course_id=%s and hole=%s;
+    '''
+    variables = (c, h)
+    response = db_read(query, variables)
+
+    return response
+
 def get_round_info(tid, round):
     """Gets information of given round for given tournament."""
     query = '''
@@ -60,6 +80,16 @@ def get_round_info(tid, round):
         WHERE tournament_id = %s AND round = %s;
     '''
     variables = (tid, round)
+    response = db_read(query, variables)
+
+    return response
+
+def get_shot_log(s):
+    """Gets last shot information of id `s`."""
+    query = '''
+        SELECT * FROM shot_log WHERE id=%s;
+    '''
+    variables = (s,)
     response = db_read(query, variables)
 
     return response
@@ -74,13 +104,30 @@ def get_shot_statuses():
 def get_shots_with_status():
     """Gets shot information by status_id."""
     query = '''
-        SELECT t.id, t.tournament_id, t.user_id, t.round, t.hole, t.shot, t.location_id, t.status_id
-        FROM tournament_status t;
+        SELECT ts.id,
+            ts.tournament_id, t.tournament_name,
+            ts.user_id, u.player_name, u.discord_snowflake,
+            ts.round, ts.hole, ts.shot,
+            ts.location_id, l.location_name, l.modifier_name,
+            ts.status_id
+        FROM tournament_status ts
+        LEFT JOIN tournaments t ON ts.tournament_id=t.id
+        LEFT JOIN users u ON ts.user_id=u.id
+        LEFT JOIN locations_lookup l on ts.location_id=l.id;
     '''
     response = db_read(query)
 
     return response
 
+def get_tournament_rounds(t, r):
+    """Gets tournament_rounds info by tournament_id `t` and round `r`"""
+    query = '''
+        SELECT * FROM tournament_rounds WHERE tournament_id=%s AND round=%s;
+    '''
+    variables=(t, r)
+    response = db_read(query, variables)
+
+    return response
 
 def get_tournaments_with_status():
     """Gets tournament information by status_id."""
@@ -125,6 +172,14 @@ def get_tournament_user_info(t):
 ###############################################################################
 
 ##### Update ##################################################################
+def change_shot_status(s, c):
+    """Sets tournament_status `s` to status `c`"""
+    query = "UPDATE tournament_status SET status_id=%s WHERE id=%s;"
+    variables = (c, s)
+    response = db_update(query, variables)
+
+    return response
+
 def change_tournament_status(t, c):
     """Sets tournament `t` to status `c`"""
     query = "UPDATE tournaments SET status_id=%s WHERE id=%s;"
@@ -137,10 +192,22 @@ def start_user_round(t, u, r):
     """Sets user `u` to start round `r` on tournament `t`"""
     query = '''
         UPDATE tournament_status
-        SET round=%s, hole=1, shot=1, location_id=999, status_id=100
+        SET round=%s, hole=1, shot=1, location_id=999, status_id=50
         WHERE tournament_id=%s AND user_id=%s;
     '''
     variables = (r, t, u)
+    response = db_update(query, variables)
+
+    return response
+
+def update_shotid_to_tournament_status(s, sid):
+    """Sets shot_id `sid` to id `s`"""
+    query = '''
+        UPDATE tournament_status
+        SET shot_id=%s
+        WHERE id=%s;
+    '''
+    variables = (sid, s)
     response = db_update(query, variables)
 
     return response
@@ -175,6 +242,37 @@ def get_all_courses():
 
 ##### TOURNAMENTS QUERIES #####################################################
 ##### Create ##################################################################
+def add_shot_to_shot_log(tr, h, bp, s):
+    """Adds new row to shot log."""
+    query = '''
+        INSERT INTO shot_log
+        (
+            tournament_id, round_id, round_num, course_id, hole_id, hole_num,
+            user_id, player_name,
+            shot_num, location_id, location_name, modifier_name,
+            rough_penalty, deep_rough_penalty, bunker_penalty,
+            oob_bonus, water_bonus, drive_bonus
+        )
+        VALUES
+        (
+            %s, %s, %s, %s, %s, %s,
+            %s, %s,
+            %s, %s, %s, %s,
+            %s, %s, %s,
+            %s, %s, %s
+        );
+    '''
+    variables = (
+        s['tournament_id'], tr['id'], s['round'], tr['course_id'], h['id'], s['hole'],
+        s['user_id'], s['player_name'],
+        s['shot'], s['location_id'], s['location_name'], s['modifier_name'],
+        bp['rough'], bp['deep_rough'], bp['bunker'],
+        bp['oob'], bp['water'], bp['drive']
+    )
+    response = db_create(query, variables)
+
+    return response
+
 def add_user_to_tournament(userid, tid):
     """Adds user to tournament."""
     query = '''
