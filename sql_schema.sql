@@ -132,7 +132,9 @@ CREATE TABLE shot_log (
     new_location_id     INT,            -- new locations_lookup.id
     new_location_name   VARCHAR(25),    -- new actual location name
     new_modifier_name   VARCHAR(25),    -- new actual modifier name
-    shot_result_time    TIMESTAMP       -- time of when shot was resulted
+    shot_result_time    TIMESTAMP,      -- time of when shot was resulted
+    created_on          TIMESTAMP       NOT NULL DEFAULT NOW(),
+    updated_on          TIMESTAMP       NOT NULL DEFAULT NOW() ON UPDATE NOW()
 );
 
 -- Tournaments

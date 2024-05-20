@@ -108,10 +108,6 @@ async def ck_shot_50(bot, ts, c, s_list):
                     bp['drive'] == cb['drive_bonus']
             
             # Now that we have all the info we need, let's start a new shot log and get the id for it
-            print(f"tournament_rounds: {tr}")
-            print(f"holes: {h}")
-            print(f"bonuses: {bp}")
-            print(f"tournament_status: {s}")
             shot_id = db.add_shot_to_shot_log(tr, h, bp, s)
 
             # Insert shot_id into the shot information
@@ -138,9 +134,13 @@ async def ck_shot_100(bot, ts, c, s_list):
                 note_ms += f" - {s['modifier_name']}\n"
             else:
                 note_ms += f"\n"
-            note_ms += f"Enter your shot with `.shoot <number>`"
+            note_ms += f"Diff Results:\n"
+            note_ms += "```\n"
+            note_ms += "```\n"
+            note_ms += f"Enter your shot with `-shoot <number>`"
 
             await send_note(bot, s['discord_snowflake'], note_ms)
+            db.add_shot_time(s['shot_id'])                              # Add shot request time to shot_log
             db.change_shot_status(s['id'], ci['next_status'])           # Change to next code
 
 async def ck_tourn_201(bot, ts, c, t_list):

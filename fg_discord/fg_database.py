@@ -107,7 +107,7 @@ def get_shots_with_status():
         SELECT ts.id,
             ts.tournament_id, t.tournament_name,
             ts.user_id, u.player_name, u.discord_snowflake,
-            ts.round, ts.hole, ts.shot,
+            ts.round, ts.hole, ts.shot, ts.shot_id,
             ts.location_id, l.location_name, l.modifier_name,
             ts.status_id
         FROM tournament_status ts
@@ -172,6 +172,14 @@ def get_tournament_user_info(t):
 ###############################################################################
 
 ##### Update ##################################################################
+def add_shot_time(s):
+    """Adds current time to `shot_send_time` field of `shots` on id of `s`"""
+    query = "UPDATE shot_log SET shot_request_time=NOW() WHERE id=%s;"
+    variables = (s,)
+    response = db_update(query, variables)
+
+    return response
+
 def change_shot_status(s, c):
     """Sets tournament_status `s` to status `c`"""
     query = "UPDATE tournament_status SET status_id=%s WHERE id=%s;"
@@ -226,6 +234,38 @@ def remove_user_from_tournament(t, u):
     response = db_delete(query, variables)
 
     return response
+###############################################################################
+###############################################################################
+
+##### HOLES QUERIES ###########################################################
+##### Create ##################################################################
+###############################################################################
+
+##### Read ####################################################################
+def get_shot_status_by_user(u):
+    """Gets shot status of user `u`"""
+    query = '''SELECT * FROM tournament_status WHERE user_id=%s;'''
+    variables = (u,)
+    response = db_read(query, variables)
+
+    return response
+###############################################################################
+
+##### Update ##################################################################
+def insert_swing_in_shot_log(i, s):
+    """Adds swing `s` to id `i`"""
+    query = '''
+        UPDATE shot_log
+        SET user_shot = %s, shot_send_time=NOW()
+        WHERE id=%s;
+    '''
+    variables = (s, i)
+    response = db_update(query, variables)
+
+    return response
+###############################################################################
+
+##### Delete ##################################################################
 ###############################################################################
 ###############################################################################
 
