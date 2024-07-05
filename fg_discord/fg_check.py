@@ -11,6 +11,15 @@ from fg_discord.fg_errors import error_notify
 GUILD_ID = keys.guild_id
 ###############################################################################
 
+def get_diffs(s):
+    """When given hole and shot information, return the diffs."""
+    h = db.get_holes(s['course_id'], s['hole'])[0]['id']
+    l = db.get_location_by_id(s['location_id'])[0]['location_name']
+    diff_list = db.get_diffs_by_hole_and_location(h, l)
+
+    return diff_list
+
+
 async def ck_check_tournaments(bot, ts):
     """Checks status of tournaments."""
     dt = datetime.fromtimestamp(ts)
@@ -126,6 +135,7 @@ async def ck_shot_100(bot, ts, c, s_list):
 
     for s in s_list:
         if s['status_id'] == ci['id']:  # Send user a DM, requesting a new shot
+            diff_list = get_diffs(s)
             note_ms = "It's time to shoot!\n"
             note_ms += f"> **{s['tournament_name']}**\n"
             note_ms += f"> Round: {s['round']} | Hole: {s['hole']} | Shot: {s['shot']}\n"
@@ -136,6 +146,12 @@ async def ck_shot_100(bot, ts, c, s_list):
                 note_ms += f"\n"
             note_ms += f"Diff Results:\n"
             note_ms += "```\n"
+            note_ms += "Start   End   Location        Modifier     \n"
+            note_ms += "-----   ---   -------------   -------------\n"
+
+            for d in diff_list:
+                note_ms += f"{d['start_diff']:>5}   {d['end_diff']:>3}   {d['location_name']:<13}   {d['modifier_name']:<13}\n"
+
             note_ms += "```\n"
             note_ms += f"Enter your shot with `-shoot <number>`"
 

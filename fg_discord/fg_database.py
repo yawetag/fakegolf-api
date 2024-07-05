@@ -62,12 +62,37 @@ def get_courses(c):
 
     return response
 
+def get_diffs_by_hole_and_location(h, l):
+    """Gets diff list of hole `h` and location_name `l`"""
+    query = '''
+        SELECT
+	        hs.start_diff, hs.end_diff,
+            ll.location_name, ll.modifier_name
+        FROM hole_shots hs
+        LEFT JOIN locations_lookup ll ON hs.new_location_id = ll.id
+        WHERE hole_id=%s AND curr_location=%s;
+    '''
+    variables = (h, l)
+    response = db_read(query, variables)
+
+    return response
+
 def get_holes(c, h):
     """Gets holes information of course_id `c` and hole `h`."""
     query = '''
         SELECT * FROM holes WHERE course_id=%s and hole=%s;
     '''
     variables = (c, h)
+    response = db_read(query, variables)
+
+    return response
+
+def get_location_by_id(i):
+    """Gets location information by id `i`"""
+    query = '''
+        SELECT * from locations_lookup WHERE id=%s;
+    '''
+    variables = (i,)
     response = db_read(query, variables)
 
     return response
@@ -107,12 +132,14 @@ def get_shots_with_status():
         SELECT ts.id,
             ts.tournament_id, t.tournament_name,
             ts.user_id, u.player_name, u.discord_snowflake,
+            tr.course_id,
             ts.round, ts.hole, ts.shot, ts.shot_id,
             ts.location_id, l.location_name, l.modifier_name,
             ts.status_id
         FROM tournament_status ts
         LEFT JOIN tournaments t ON ts.tournament_id=t.id
         LEFT JOIN users u ON ts.user_id=u.id
+        LEFT JOIN tournament_rounds tr ON ts.tournament_id=tr.tournament_id AND ts.round=tr.round
         LEFT JOIN locations_lookup l on ts.location_id=l.id;
     '''
     response = db_read(query)

@@ -77,7 +77,7 @@ CREATE TABLE holes (
 CREATE TABLE hole_shots (
     id                  INT         NOT NULL PRIMARY KEY AUTO_INCREMENT,
     hole_id             INT         NOT NULL,
-    curr_location_id    INT         NOT NULL,
+    curr_location       VARCHAR(50) NOT NULL,
     start_diff          INT         NOT NULL,
     end_diff            INT         NOT NULL,
     new_location_id     INT         NOT NULL,
