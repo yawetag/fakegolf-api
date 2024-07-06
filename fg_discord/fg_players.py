@@ -32,7 +32,7 @@ class Players(commands.Cog):
 
     def p_is_user(self, ctx):
         """Checks database to see if user is active."""
-        user = db.get_user_by_discord_id(ctx.author.id)     # Get user from database
+        user = db.generic_get_all_match_exact('users', 'discord_snowflake', ctx.author.id)     # Get user from database
         if len(user) == 0:      # If no user was found, return None
             return None
         elif len(user) == 1:    # If user was found, return their info

@@ -59,30 +59,29 @@ def db_delete(q, v):
 ###############################################################################
 def generic_get_all(t):
     """Gets all records from table `t`."""
-    query = '''
-        SELECT * FROM %s;
+    query = f'''
+        SELECT * FROM {t};
     '''
-    variables = (t,)
-    response = db_read(query, variables)
+    response = db_read(query)
 
     return response
 
 def generic_get_all_match_exact(t, f, v):
     """Gets all records from table `t` matching variable `v` to field `f`."""
-    query = '''
-        SELECT * FROM %s WHERE %s=%s;
+    query = f'''
+        SELECT * FROM {t} WHERE {f}=%s;
     '''
-    variables = (t, f, v)
+    variables = (v)
     response = db_read(query, variables)
 
     return response
 
 def generic_get_all_match_like(t, f, v):
     """Gets all records from table `t` like variable `v` to field `f`."""
-    query = '''
-        SELECT * FROM %s WHERE %s LIKE %s;
+    query = f'''
+        SELECT * FROM {t} WHERE {f} LIKE %s;
     '''
-    variables = (t, f, '%'+str(v)+'%')
+    variables = ('%'+str(v)+'%')
     response = db_read(query, variables)
 
     return response
@@ -108,16 +107,6 @@ def generic_get_all_match_like(t, f, v):
 ###############################################################################
 ##### check.py Create #########################################################
 ##### check.py Read   #########################################################
-def get_courses(c):
-    """Gets courses information of course_id `c`."""
-    query = '''
-        SELECT * FROM courses WHERE id=%s;
-    '''
-    variables = (c,)
-    response = db_read(query, variables)
-
-    return response
-
 def get_diffs_by_hole_and_location(h, l):
     """Gets diff list of hole `h` and location_name `l`"""
     query = '''
@@ -143,16 +132,6 @@ def get_holes(c, h):
 
     return response
 
-def get_location_by_id(i):
-    """Gets location information by id `i`"""
-    query = '''
-        SELECT * from locations_lookup WHERE id=%s;
-    '''
-    variables = (i,)
-    response = db_read(query, variables)
-
-    return response
-
 def get_round_info(tid, round):
     """Gets information of given round for given tournament."""
     query = '''
@@ -162,23 +141,6 @@ def get_round_info(tid, round):
     '''
     variables = (tid, round)
     response = db_read(query, variables)
-
-    return response
-
-def get_shot_log(s):
-    """Gets last shot information of id `s`."""
-    query = '''
-        SELECT * FROM shot_log WHERE id=%s;
-    '''
-    variables = (s,)
-    response = db_read(query, variables)
-
-    return response
-
-def get_shot_statuses():
-    """Gets list of shot statuses."""
-    query = "SELECT * FROM shot_status_lookup;"
-    response = db_read(query)
 
     return response
 
@@ -221,21 +183,6 @@ def get_tournaments_with_status():
         ON u.id = t.designer_id;
     '''
     response = db_read(query)
-
-    return response
-
-def get_tournament_statuses():
-    """Gets list of tournament statuses."""
-    query = "SELECT * FROM tournament_status_lookup;"
-    response = db_read(query)
-
-    return response
-
-def get_tournament_user_games(u):
-    """Gets list of tournaments a user is registered in."""
-    query = "SELECT * FROM tournament_status WHERE user_id=%s"
-    variables = (u,)
-    response = db_read(query, variables)
 
     return response
 
@@ -361,13 +308,6 @@ def get_all_courses():
 ###############################################################################
 ##### holes.py Create #########################################################
 ##### holes.py Read   #########################################################
-def get_shot_status_by_user(u):
-    """Gets shot status of user `u`"""
-    query = '''SELECT * FROM tournament_status WHERE user_id=%s;'''
-    variables = (u,)
-    response = db_read(query, variables)
-
-    return response
 ##### holes.py Update #########################################################
 def insert_swing_in_shot_log(i, s):
     """Adds swing `s` to id `i`"""
@@ -413,13 +353,6 @@ def add_user_by_discord_id(ctx):
 
     return response
 ##### players.py Read   #######################################################
-def get_user_by_discord_id(snowflake):
-    """Gets user information with their discord snowflake."""
-    query = "SELECT * FROM users WHERE discord_snowflake=%s;"
-    variables = (snowflake)
-    response = db_read(query, variables)
-    
-    return response
 ##### players.py Update #######################################################
 def change_name_by_discord_id(ctx, new_name):
     """Changes player_name in users table by their discord snowflake."""

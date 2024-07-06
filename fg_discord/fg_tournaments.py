@@ -52,7 +52,7 @@ class Tournaments(commands.Cog):
         """Registers a user for a tournament."""
 
         # Get users.id by snowflake
-        userid = db.get_user_by_discord_id(ctx.author.id)
+        userid = db.generic_get_all_match_exact('users', 'discord_snowflake', ctx.author.id)
         register = db.add_user_to_tournament(userid[0]['id'], tid)
         if register:
             return register

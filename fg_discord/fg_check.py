@@ -14,7 +14,7 @@ GUILD_ID = keys.guild_id
 def get_diffs(s):
     """When given hole and shot information, return the diffs."""
     h = db.get_holes(s['course_id'], s['hole'])[0]['id']
-    l = db.get_location_by_id(s['location_id'])[0]['location_name']
+    l = db.generic_get_all_match_exact('locations_lookup', 'id', s['location_id'])[0]['location_name']
     diff_list = db.get_diffs_by_hole_and_location(h, l)
 
     return diff_list
@@ -23,7 +23,7 @@ def get_diffs(s):
 async def ck_check_tournaments(bot, ts):
     """Checks status of tournaments."""
     dt = datetime.fromtimestamp(ts)
-    codes = db.get_tournament_statuses()
+    codes = db.generic_get_all('tournament_status_lookup')
     c = {obj['id']:obj for obj in codes}
 
     t_list = db.get_tournaments_with_status()
@@ -56,7 +56,7 @@ async def ck_check_tournaments(bot, ts):
 async def ck_check_shots(bot, ts):
     """Checks status of shots."""
     dt = datetime.fromtimestamp(ts)
-    codes = db.get_shot_statuses()
+    codes = db.generic_get_all('shot_status_lookup')
     c = {obj['id']:obj for obj in codes}
 
     s_list = db.get_shots_with_status()
@@ -88,7 +88,7 @@ async def ck_shot_50(bot, ts, c, s_list):
         if s['status_id'] == ci['id']:  # Create new shot log
             tr = db.get_tournament_rounds(s['tournament_id'], s['round'])[0]    # Get tournament_rounds info
             h = db.get_holes(tr['course_id'], s['hole'])[0]                     # Get holes info
-            cb = db.get_courses(tr['course_id'])[0]                             # Get courses info
+            cb = db.generic_get_all_match_exact("courses", "id", tr['course_id'])[0]
             bp = {
                 'rough': 0,
                 'deep_rough' : 0,
@@ -98,7 +98,7 @@ async def ck_shot_50(bot, ts, c, s_list):
                 'drive' : 0,
             }
             if s['shot'] > 1 and s['shot_id']:
-                ls = db.get_shot_log(s['shot_id'])[0]                           # Get last shot info
+                ls = db.generic_get_all_match_exact('shot_log', 'id', s['shot_id'])[0]  # Get last shot info
             else:
                 ls = {}
             
@@ -273,7 +273,7 @@ async def ck_tourn_256(bot, ts, c, t_list):
         if t['status_id'] == ci['id']:
             reg_users = db.get_tournament_user_info(t['id'])
             for r in reg_users:
-                    num_games = db.get_tournament_user_games(r['id'])
+                    num_games = db.generic_get_all_match_exact('tournament_status', 'user_id', r['id'])
                     if len(num_games) > 1:      # If user is registered in multiple tournaments, remove them.
                         rem_user = db.remove_user_from_tournament(t['id'], r['id'])
                         log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] User in Multiple Tournaments: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
@@ -391,7 +391,7 @@ async def ck_tourn_306(bot, ts, c, t_list):
         if t['status_id'] == ci['id']:
             reg_users = db.get_tournament_user_info(t['id'])
             for r in reg_users:
-                    num_games = db.get_tournament_user_games(r['id'])
+                    num_games = db.generic_get_all_match_exact('tournament_status', 'user_id', r['id'])
                     if len(num_games) > 1:      # If user is registered in multiple tournaments, remove them.
                         rem_user = db.remove_user_from_tournament(t['id'], r['id'])
                         log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] User in Multiple Tournaments: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."

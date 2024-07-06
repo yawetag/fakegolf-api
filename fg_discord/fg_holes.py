@@ -25,7 +25,7 @@ class Holes(commands.Cog):
     @commands.cooldown(1, 5, commands.BucketType.user)
     async def shoot(self, ctx, shot=None):
         # First, let's get the user info
-        user_info = db.get_user_by_discord_id(ctx.author.id)
+        user_info = db.generic_get_all_match_exact('users', 'discord_snowflake', ctx.author.id)
         if len(user_info) == 0:
             user_msg = "You are not in my database."
             await ctx.message.add_reaction(UGLY_REACTION)
@@ -34,7 +34,7 @@ class Holes(commands.Cog):
         user_info = user_info[0]
         
         # Now that we have the user info, let's see if they have a shot waiting.
-        user_shot_id = db.get_shot_status_by_user(user_info['id'])
+        user_shot_id = db.generic_get_all_match_exact('tournament_status', 'user_id', user_info['id'])
         if len(user_shot_id) == 0:
             user_msg = "You are not currently in a tournament."
             await ctx.message.add_reaction(UGLY_REACTION)
