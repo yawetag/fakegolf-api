@@ -72,6 +72,7 @@ async def ck_check_shots(bot, ts):
 
     await ck_shot_50(bot, ts, c, s_list)
     await ck_shot_100(bot, ts, c, s_list)
+    await ck_shot_200(bot, ts, c, s_list)
 
     return
 
@@ -159,6 +160,24 @@ async def ck_shot_100(bot, ts, c, s_list):
             db.check_add_shot_time(s['shot_id'])                              # Add shot request time to shot_log
             db.check_change_shot_status(s['id'], ci['next_status'])           # Change to next code
 
+async def ck_shot_200(bot, ts, c, s_list):
+    """
+    Shot Status 200 Check.
+    If the user has entered a shot, move their status to the next status.
+    If not, keep status
+    """
+    ci = c[200]
+
+    await print_log(ci)
+
+    for s in s_list:
+        if s['status_id'] == ci['id']:
+            shot_info = db.generic_get_all_match_exact('shot_log', 'id', s['shot_id'])[0]
+            if shot_info['user_shot'] is not None:     # If user_shot is present, move status to next
+                db.check_change_shot_status(s['id'], ci['next_status'])     # Change to next code
+                await log_msg_s(ts, s, ci, c)
+
+
 async def ck_tourn_201(bot, ts, c, t_list):
     """
     Tournament Status 201 Check.
@@ -176,7 +195,7 @@ async def ck_tourn_201(bot, ts, c, t_list):
             if int(t['start_time']) <= ts:  # If the start time has passed, do some work
                 db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 msg = f"### TOURNAMENT OPEN FOR REGISTRATION\n**{t['tournament_name']}** by *{t['player_name']}* has opened for registration. Type `-tournament_info {t['id']}` for more information or `-join_tournament {t['id']}` to join."
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
                 await ann_msg(msg)
 
 async def ck_tourn_210(bot, ts, c, t_list):
@@ -194,7 +213,7 @@ async def ck_tourn_210(bot, ts, c, t_list):
         if t['status_id'] == ci['id']:
             if int(t['end_time']) <= ts: # If the end time has passed, do some work
                 db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_250(bot, ts, c, t_list):
     """
@@ -208,7 +227,7 @@ async def ck_tourn_250(bot, ts, c, t_list):
     for t in t_list:
         if t['status_id'] == ci['id']:
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_252(bot, ts, c, t_list):
     """
@@ -233,7 +252,7 @@ async def ck_tourn_252(bot, ts, c, t_list):
                     await send_log(None, log_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_254(bot, ts, c, t_list):
     """
@@ -256,7 +275,7 @@ async def ck_tourn_254(bot, ts, c, t_list):
                     await send_log(None, log_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_256(bot, ts, c, t_list):
     """
@@ -280,7 +299,7 @@ async def ck_tourn_256(bot, ts, c, t_list):
                         await send_log(None, log_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_258(bot, ts, c, t_list):
     """
@@ -305,10 +324,10 @@ async def ck_tourn_258(bot, ts, c, t_list):
 
                 db.check_change_tournament_status(t['id'], 890)                   # Change to canceled
                 ci['next_status'] = 890
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
             else:
                 db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_300(bot, ts, c, t_list):
     """
@@ -326,7 +345,7 @@ async def ck_tourn_300(bot, ts, c, t_list):
             round_times = db.check_get_round_info(t['id'], 1)[0]
             if int(round_times['start_time']) <= ts: # If the start time has passed, do some work
                 db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_302(bot, ts, c, t_list):
     """
@@ -351,7 +370,7 @@ async def ck_tourn_302(bot, ts, c, t_list):
                     await send_log(None, log_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_304(bot, ts, c, t_list):
     """
@@ -374,7 +393,7 @@ async def ck_tourn_304(bot, ts, c, t_list):
                     await send_log(None, log_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_306(bot, ts, c, t_list):
     """
@@ -398,7 +417,7 @@ async def ck_tourn_306(bot, ts, c, t_list):
                         await send_log(None, log_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_308(bot, ts, c, t_list):
     """
@@ -423,10 +442,10 @@ async def ck_tourn_308(bot, ts, c, t_list):
 
                 db.check_change_tournament_status(t['id'], 890)                   # Change to canceled
                 ci['next_status'] = 890
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
             else:
                 db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
-                await log_msg(ts, t, ci, c)
+                await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_310(bot, ts, c, t_list):
     """
@@ -444,7 +463,7 @@ async def ck_tourn_310(bot, ts, c, t_list):
             await send_note(bot, t['discord_snowflake'], note_ms)
 
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ck_tourn_312(bot, ts, c, t_list):
     """
@@ -466,15 +485,21 @@ async def ck_tourn_312(bot, ts, c, t_list):
                 await send_note(bot, u['discord_snowflake'], note_ms)
             
             db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
-            await log_msg(ts, t, ci, c)
+            await log_msg_t(ts, t, ci, c)
 
 async def ann_msg(msg):
     """Sends message to announcements channel."""
 
     await send_announcement(None, msg)  # Send announcement to announcements channel
 
-async def log_msg(ts, t, ci, c):
-    """Sends log to log channel."""
+async def log_msg_s(ts, s, ci, c):
+    """Sends shot log to log channel."""
+
+    log_msg = f"<t:{ts}:T> **{s['player_name']}** [{s['user_id']}] Status Change: **{ci['id']} → {ci['next_status']}** | {ci['status_name']} → {c[ci['next_status']]['status_name']}"
+    await send_log(None, log_msg)           # Send change to log channel
+
+async def log_msg_t(ts, t, ci, c):
+    """Sends tournament log to log channel."""
 
     log_msg = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Status Change: **{ci['id']} → {ci['next_status']}** | {ci['status_name']} → {c[ci['next_status']]['status_name']}"
     await send_log(None, log_msg)           # Send change to log channel

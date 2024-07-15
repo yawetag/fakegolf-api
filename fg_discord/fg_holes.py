@@ -72,10 +72,7 @@ class Holes(commands.Cog):
         # First, store the swing in shot_log
         store_swing = db.holes_insert_swing_in_shot_log(user_shot_id['shot_id'], shot)
 
-        # Second, update the user's status to waiting on result
-        update_status = db.holes_change_shot_status(user_shot_id['id'], 300)
-
-        # Lastly, emote the message to show it was received
+        # Last, emote the message to show it was received
         await ctx.message.add_reaction(SWING_REACTION)
 ###############################################################################
 
