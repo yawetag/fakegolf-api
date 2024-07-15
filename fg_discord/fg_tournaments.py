@@ -10,7 +10,7 @@ class Tournaments(commands.Cog):
         self.bot = bot
     
     def t_get_tournaments(self):
-        tournaments = db.get_all_tournaments()  # Get list of tournaments
+        tournaments = db.tournaments_get_all_tournaments()  # Get list of tournaments
         if tournaments is None:
             return 0
         else:
@@ -18,7 +18,7 @@ class Tournaments(commands.Cog):
     
     def t_tournament_info(self, tid):
         """Gets information about a tournament."""
-        tournaments = db.get_tournament_info(tid)
+        tournaments = db.tournaments_get_tournament_info(tid)
         if tournaments is None:
             return 0
         else:
@@ -26,7 +26,7 @@ class Tournaments(commands.Cog):
     
     def t_tournament_organizer(self, tid):
         """Gets Discord id of the tournament organizer."""
-        organizer = db.get_tournament_organizer(tid)
+        organizer = db.tournaments_get_tournament_organizer(tid)
         if organizer is None:
             return 0
         else:
@@ -34,7 +34,7 @@ class Tournaments(commands.Cog):
     
     def t_tournament_status(self, tid):
         """Gets status id of tournament."""
-        status = db.get_tournament_status(tid)
+        status = db.tournaments_get_tournament_status(tid)
         if status is None:
             return 0
         else:
@@ -42,7 +42,7 @@ class Tournaments(commands.Cog):
     
     def t_tournament_list_by_user(self, ctx):
         """Gets list of tournaments for user."""
-        tournaments = db.get_tournament_list_by_user(ctx)
+        tournaments = db.tournaments_get_tournament_list_by_user(ctx)
         if tournaments is None:
             return 0
         else:
@@ -53,7 +53,7 @@ class Tournaments(commands.Cog):
 
         # Get users.id by snowflake
         userid = db.generic_get_all_match_exact('users', 'discord_snowflake', ctx.author.id)
-        register = db.add_user_to_tournament(userid[0]['id'], tid)
+        register = db.tournaments_add_user_to_tournament(userid[0]['id'], tid)
         if register:
             return register
         else:

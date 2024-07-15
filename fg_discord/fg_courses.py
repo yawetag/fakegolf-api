@@ -10,7 +10,7 @@ class Courses(commands.Cog):
         self.bot = bot
     
     def c_get_courses(self):
-        courses = db.get_all_courses()  # Get list of courses
+        courses = db.check_get_all_courses()  # Get list of courses
         if courses is None:
             return 0
         else:

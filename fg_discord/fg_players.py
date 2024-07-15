@@ -11,7 +11,7 @@ class Players(commands.Cog):
     
     def p_add_user(self, ctx):
         """Adds new user to the database."""
-        user = db.add_user_by_discord_id(ctx)   # Add user to database
+        user = db.players_add_user_by_discord_id(ctx)   # Add user to database
         if user:            # If user was added successfully, return id
             return user
         else:               # If not, return an error
@@ -24,7 +24,7 @@ class Players(commands.Cog):
         elif len(new_name) > 40:
             return 40
         
-        user = db.change_name_by_discord_id(ctx, new_name)  # Change user in database
+        user = db.players_change_name_by_discord_id(ctx, new_name)  # Change user in database
         if user:
             return 1
         else:

@@ -107,7 +107,7 @@ def generic_get_all_match_like(t, f, v):
 ###############################################################################
 ##### check.py Create #########################################################
 ##### check.py Read   #########################################################
-def get_diffs_by_hole_and_location(h, l):
+def check_get_diffs_by_hole_and_location(h, l):
     """Gets diff list of hole `h` and location_name `l`"""
     query = '''
         SELECT
@@ -122,7 +122,7 @@ def get_diffs_by_hole_and_location(h, l):
 
     return response
 
-def get_holes(c, h):
+def check_get_holes(c, h):
     """Gets holes information of course_id `c` and hole `h`."""
     query = '''
         SELECT * FROM holes WHERE course_id=%s and hole=%s;
@@ -132,7 +132,7 @@ def get_holes(c, h):
 
     return response
 
-def get_round_info(tid, round):
+def check_get_round_info(tid, round):
     """Gets information of given round for given tournament."""
     query = '''
         SELECT *
@@ -144,7 +144,7 @@ def get_round_info(tid, round):
 
     return response
 
-def get_shots_with_status():
+def check_get_shots_with_status():
     """Gets shot information by status_id."""
     query = '''
         SELECT ts.id,
@@ -164,7 +164,7 @@ def get_shots_with_status():
 
     return response
 
-def get_tournament_rounds(t, r):
+def check_get_tournament_rounds(t, r):
     """Gets tournament_rounds info by tournament_id `t` and round `r`"""
     query = '''
         SELECT * FROM tournament_rounds WHERE tournament_id=%s AND round=%s;
@@ -174,7 +174,7 @@ def get_tournament_rounds(t, r):
 
     return response
 
-def get_tournaments_with_status():
+def check_get_tournaments_with_status():
     """Gets tournament information by status_id."""
     query = '''
         SELECT t.id, t.tournament_name, t.start_time, t.end_time, t.status_id, u.player_name, u.discord_snowflake
@@ -186,7 +186,7 @@ def get_tournaments_with_status():
 
     return response
 
-def get_tournament_user_info(t):
+def check_get_tournament_user_info(t):
     """Gets user information for users entered into a tournament."""
     query = '''
         SELECT u.*
@@ -199,7 +199,7 @@ def get_tournament_user_info(t):
 
     return response
 ##### check.py Update #########################################################
-def add_shot_time(s):
+def check_add_shot_time(s):
     """Adds current time to `shot_send_time` field of `shots` on id of `s`"""
     query = "UPDATE shot_log SET shot_request_time=NOW() WHERE id=%s;"
     variables = (s,)
@@ -207,7 +207,7 @@ def add_shot_time(s):
 
     return response
 
-def change_shot_status(s, c):
+def check_change_shot_status(s, c):
     """Sets tournament_status `s` to status `c`"""
     query = "UPDATE tournament_status SET status_id=%s WHERE id=%s;"
     variables = (c, s)
@@ -215,7 +215,7 @@ def change_shot_status(s, c):
 
     return response
 
-def change_tournament_status(t, c):
+def check_change_tournament_status(t, c):
     """Sets tournament `t` to status `c`"""
     query = "UPDATE tournaments SET status_id=%s WHERE id=%s;"
     variables = (c, t)
@@ -223,7 +223,7 @@ def change_tournament_status(t, c):
 
     return response
 
-def start_user_round(t, u, r):
+def check_start_user_round(t, u, r):
     """Sets user `u` to start round `r` on tournament `t`"""
     query = '''
         UPDATE tournament_status
@@ -235,7 +235,7 @@ def start_user_round(t, u, r):
 
     return response
 
-def update_shotid_to_tournament_status(s, sid):
+def check_update_shotid_to_tournament_status(s, sid):
     """Sets shot_id `sid` to id `s`"""
     query = '''
         UPDATE tournament_status
@@ -247,7 +247,7 @@ def update_shotid_to_tournament_status(s, sid):
 
     return response
 ##### check.py Delete #########################################################
-def remove_user_from_tournament(t, u):
+def check_remove_user_from_tournament(t, u):
     """Removes user from being registered in tournament."""
     query = '''
         DELETE FROM tournament_status
@@ -269,7 +269,7 @@ def remove_user_from_tournament(t, u):
 ###############################################################################
 ##### courses.py Create #######################################################
 ##### courses.py Read   #######################################################
-def get_all_courses():
+def check_get_all_courses():
     """Gets list of all courses."""
     query = "SELECT c.id, c.course_name, u.player_name, c.par, c.yardage FROM courses c LEFT JOIN users u ON c.designer_id = u.id;"
     response = db_read(query)
@@ -309,7 +309,15 @@ def get_all_courses():
 ##### holes.py Create #########################################################
 ##### holes.py Read   #########################################################
 ##### holes.py Update #########################################################
-def insert_swing_in_shot_log(i, s):
+def holes_change_shot_status(s, c):
+    """Sets tournament_status `s` to status `c`"""
+    query = "UPDATE tournament_status SET status_id=%s WHERE id=%s;"
+    variables = (c, s)
+    response = db_update(query, variables)
+
+    return response
+
+def holes_insert_swing_in_shot_log(i, s):
     """Adds swing `s` to id `i`"""
     query = '''
         UPDATE shot_log
@@ -320,6 +328,7 @@ def insert_swing_in_shot_log(i, s):
     response = db_update(query, variables)
 
     return response
+
 ##### holes.py Delete #########################################################
 ###############################################################################
 ###############################################################################
@@ -342,7 +351,7 @@ def insert_swing_in_shot_log(i, s):
 ############################## PLAYERS.PY QUERIES #############################
 ###############################################################################
 ##### players.py Create #######################################################
-def add_user_by_discord_id(ctx):
+def players_add_user_by_discord_id(ctx):
     """Adds new user to users table with their discord snowflake."""
     player_name = ctx.author.name
     snowflake = ctx.author.id
@@ -354,7 +363,7 @@ def add_user_by_discord_id(ctx):
     return response
 ##### players.py Read   #######################################################
 ##### players.py Update #######################################################
-def change_name_by_discord_id(ctx, new_name):
+def players_change_name_by_discord_id(ctx, new_name):
     """Changes player_name in users table by their discord snowflake."""
     snowflake = ctx.author.id
     query = "UPDATE users set player_name=%s WHERE discord_snowflake=%s;"
@@ -372,7 +381,7 @@ def change_name_by_discord_id(ctx, new_name):
 ############################ TOURNAMENTS.PY QUERIES ###########################
 ###############################################################################
 ##### tournaments.py Create ###################################################
-def add_shot_to_shot_log(tr, h, bp, s):
+def tournaments_add_shot_to_shot_log(tr, h, bp, s):
     """Adds new row to shot log."""
     query = '''
         INSERT INTO shot_log
@@ -403,7 +412,7 @@ def add_shot_to_shot_log(tr, h, bp, s):
 
     return response
 
-def add_user_to_tournament(userid, tid):
+def tournaments_add_user_to_tournament(userid, tid):
     """Adds user to tournament."""
     query = '''
         INSERT INTO tournament_status
@@ -415,7 +424,7 @@ def add_user_to_tournament(userid, tid):
 
     return response
 ##### tournaments.py Read   ###################################################
-def get_all_tournaments():
+def tournaments_get_all_tournaments():
     """Gets list of all tournaments."""
     query = '''
         SELECT t.id, t.tournament_name, t.start_time, t.end_time, t.status_id, sl.status_name, u.player_name, COUNT(*) AS 'rounds'
@@ -428,7 +437,7 @@ def get_all_tournaments():
     
     return response
 
-def get_tournament_info(tid):
+def tournaments_get_tournament_info(tid):
     """Gets list of rounds for a tournament."""
     query = '''
         SELECT t.tournament_name, u.player_name, t.description, tr.round, tr.start_time, tr.end_time, c.course_name, c.par, c.yardage
@@ -443,7 +452,7 @@ def get_tournament_info(tid):
 
     return response
 
-def get_tournament_list_by_user(ctx):
+def tournaments_get_tournament_list_by_user(ctx):
     """Gets list of tournaments by user."""
     query = '''
         SELECT ts.tournament_id
@@ -456,7 +465,7 @@ def get_tournament_list_by_user(ctx):
 
     return response
 
-def get_tournament_organizer(tid):
+def tournaments_get_tournament_organizer(tid):
     """Gets the discord id of the tournament organizer."""
     query = '''
         SELECT u.discord_snowflake
@@ -469,7 +478,7 @@ def get_tournament_organizer(tid):
 
     return response
 
-def get_tournament_status(tid):
+def tournaments_get_tournament_status(tid):
     """Gets the tournament status_id of the tournament."""
     query = '''
         SELECT status_id

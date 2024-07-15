@@ -13,9 +13,9 @@ GUILD_ID = keys.guild_id
 
 def get_diffs(s):
     """When given hole and shot information, return the diffs."""
-    h = db.get_holes(s['course_id'], s['hole'])[0]['id']
+    h = db.check_get_holes(s['course_id'], s['hole'])[0]['id']
     l = db.generic_get_all_match_exact('locations_lookup', 'id', s['location_id'])[0]['location_name']
-    diff_list = db.get_diffs_by_hole_and_location(h, l)
+    diff_list = db.check_get_diffs_by_hole_and_location(h, l)
 
     return diff_list
 
@@ -26,7 +26,7 @@ async def ck_check_tournaments(bot, ts):
     codes = db.generic_get_all('tournament_status_lookup')
     c = {obj['id']:obj for obj in codes}
 
-    t_list = db.get_tournaments_with_status()
+    t_list = db.check_get_tournaments_with_status()
 
     print()
     print(f"[{dt.strftime('%Y-%m-%d %H:%M:%S')} | {ts}] Checking tournaments...")
@@ -59,7 +59,7 @@ async def ck_check_shots(bot, ts):
     codes = db.generic_get_all('shot_status_lookup')
     c = {obj['id']:obj for obj in codes}
 
-    s_list = db.get_shots_with_status()
+    s_list = db.check_get_shots_with_status()
 
     print()
     print(f"[{dt.strftime('%Y-%m-%d %H:%M:%S')} | {ts}] Checking shots...")
@@ -86,8 +86,8 @@ async def ck_shot_50(bot, ts, c, s_list):
 
     for s in s_list:
         if s['status_id'] == ci['id']:  # Create new shot log
-            tr = db.get_tournament_rounds(s['tournament_id'], s['round'])[0]    # Get tournament_rounds info
-            h = db.get_holes(tr['course_id'], s['hole'])[0]                     # Get holes info
+            tr = db.check_get_tournament_rounds(s['tournament_id'], s['round'])[0]    # Get tournament_rounds info
+            h = db.check_get_holes(tr['course_id'], s['hole'])[0]                     # Get holes info
             cb = db.generic_get_all_match_exact("courses", "id", tr['course_id'])[0]
             bp = {
                 'rough': 0,
@@ -117,12 +117,12 @@ async def ck_shot_50(bot, ts, c, s_list):
                     bp['drive'] == cb['drive_bonus']
             
             # Now that we have all the info we need, let's start a new shot log and get the id for it
-            shot_id = db.add_shot_to_shot_log(tr, h, bp, s)
+            shot_id = db.tournaments_add_shot_to_shot_log(tr, h, bp, s)
 
             # Insert shot_id into the shot information
-            shot_ins = db.update_shotid_to_tournament_status(s['id'], shot_id)
+            shot_ins = db.check_update_shotid_to_tournament_status(s['id'], shot_id)
 
-            db.change_shot_status(s['id'], ci['next_status'])           # Change to next code
+            db.check_change_shot_status(s['id'], ci['next_status'])           # Change to next code
 
 async def ck_shot_100(bot, ts, c, s_list):
     """
@@ -156,8 +156,8 @@ async def ck_shot_100(bot, ts, c, s_list):
             note_ms += f"Enter your shot with `-shoot <number>`"
 
             await send_note(bot, s['discord_snowflake'], note_ms)
-            db.add_shot_time(s['shot_id'])                              # Add shot request time to shot_log
-            db.change_shot_status(s['id'], ci['next_status'])           # Change to next code
+            db.check_add_shot_time(s['shot_id'])                              # Add shot request time to shot_log
+            db.check_change_shot_status(s['id'], ci['next_status'])           # Change to next code
 
 async def ck_tourn_201(bot, ts, c, t_list):
     """
@@ -174,7 +174,7 @@ async def ck_tourn_201(bot, ts, c, t_list):
     for t in t_list:
         if t['status_id'] == ci['id']:
             if int(t['start_time']) <= ts:  # If the start time has passed, do some work
-                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 msg = f"### TOURNAMENT OPEN FOR REGISTRATION\n**{t['tournament_name']}** by *{t['player_name']}* has opened for registration. Type `-tournament_info {t['id']}` for more information or `-join_tournament {t['id']}` to join."
                 await log_msg(ts, t, ci, c)
                 await ann_msg(msg)
@@ -193,7 +193,7 @@ async def ck_tourn_210(bot, ts, c, t_list):
     for t in t_list:
         if t['status_id'] == ci['id']:
             if int(t['end_time']) <= ts: # If the end time has passed, do some work
-                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
 async def ck_tourn_250(bot, ts, c, t_list):
@@ -207,7 +207,7 @@ async def ck_tourn_250(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_252(bot, ts, c, t_list):
@@ -225,14 +225,14 @@ async def ck_tourn_252(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             for r in reg_users:
                 if guild.get_member(int(r['discord_snowflake'])) is None:    # If user is not active in server, remove them.
-                    rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                    rem_user = db.check_remove_user_from_tournament(t['id'], r['id'])
                     log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Inactive User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                     await send_log(None, log_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_254(bot, ts, c, t_list):
@@ -248,14 +248,14 @@ async def ck_tourn_254(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             for r in reg_users:
                 if r['is_banned'] == 1:     # If user is banned from playing, remove them.
-                    rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                    rem_user = db.check_remove_user_from_tournament(t['id'], r['id'])
                     log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Banned User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                     await send_log(None, log_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_256(bot, ts, c, t_list):
@@ -271,15 +271,15 @@ async def ck_tourn_256(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             for r in reg_users:
                     num_games = db.generic_get_all_match_exact('tournament_status', 'user_id', r['id'])
                     if len(num_games) > 1:      # If user is registered in multiple tournaments, remove them.
-                        rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                        rem_user = db.check_remove_user_from_tournament(t['id'], r['id'])
                         log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] User in Multiple Tournaments: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                         await send_log(None, log_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_258(bot, ts, c, t_list):
@@ -295,7 +295,7 @@ async def ck_tourn_258(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             if len(reg_users) == 0:
                 log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] No one registered for tournament | Moved to Canceled."
                 await send_log(None, log_ms)
@@ -303,11 +303,11 @@ async def ck_tourn_258(bot, ts, c, t_list):
                 note_ms = f"**{t['tournament_name']}** has no active players, so it has been canceled."
                 await send_note(bot, t['discord_snowflake'], note_ms)
 
-                db.change_tournament_status(t['id'], 890)                   # Change to canceled
+                db.check_change_tournament_status(t['id'], 890)                   # Change to canceled
                 ci['next_status'] = 890
                 await log_msg(ts, t, ci, c)
             else:
-                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
 async def ck_tourn_300(bot, ts, c, t_list):
@@ -323,9 +323,9 @@ async def ck_tourn_300(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            round_times = db.get_round_info(t['id'], 1)[0]
+            round_times = db.check_get_round_info(t['id'], 1)[0]
             if int(round_times['start_time']) <= ts: # If the start time has passed, do some work
-                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
 async def ck_tourn_302(bot, ts, c, t_list):
@@ -343,14 +343,14 @@ async def ck_tourn_302(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             for r in reg_users:
                 if guild.get_member(int(r['discord_snowflake'])) is None:    # If user is not active in server, remove them.
-                    rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                    rem_user = db.check_remove_user_from_tournament(t['id'], r['id'])
                     log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Inactive User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                     await send_log(None, log_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_304(bot, ts, c, t_list):
@@ -366,14 +366,14 @@ async def ck_tourn_304(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             for r in reg_users:
                 if r['is_banned'] == 1:     # If user is banned from playing, remove them.
-                    rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                    rem_user = db.check_remove_user_from_tournament(t['id'], r['id'])
                     log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] Banned User: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                     await send_log(None, log_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_306(bot, ts, c, t_list):
@@ -389,15 +389,15 @@ async def ck_tourn_306(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             for r in reg_users:
                     num_games = db.generic_get_all_match_exact('tournament_status', 'user_id', r['id'])
                     if len(num_games) > 1:      # If user is registered in multiple tournaments, remove them.
-                        rem_user = db.remove_user_from_tournament(t['id'], r['id'])
+                        rem_user = db.check_remove_user_from_tournament(t['id'], r['id'])
                         log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] User in Multiple Tournaments: **{r['id']} - <@{r['discord_snowflake']}>** | Removed from tournament."
                         await send_log(None, log_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_308(bot, ts, c, t_list):
@@ -413,7 +413,7 @@ async def ck_tourn_308(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             if len(reg_users) == 0:
                 log_ms = f"<t:{ts}:T> **{t['tournament_name']}** [{t['id']}] No one registered for tournament | Moved to Canceled."
                 await send_log(None, log_ms)
@@ -421,11 +421,11 @@ async def ck_tourn_308(bot, ts, c, t_list):
                 note_ms = f"**{t['tournament_name']}** has no active players, so it has been canceled."
                 await send_note(bot, t['discord_snowflake'], note_ms)
 
-                db.change_tournament_status(t['id'], 890)                   # Change to canceled
+                db.check_change_tournament_status(t['id'], 890)                   # Change to canceled
                 ci['next_status'] = 890
                 await log_msg(ts, t, ci, c)
             else:
-                db.change_tournament_status(t['id'], ci['next_status'])     # Change to next code
+                db.check_change_tournament_status(t['id'], ci['next_status'])     # Change to next code
                 await log_msg(ts, t, ci, c)
 
 async def ck_tourn_310(bot, ts, c, t_list):
@@ -439,11 +439,11 @@ async def ck_tourn_310(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
+            reg_users = db.check_get_tournament_user_info(t['id'])
             note_ms = f"**{t['tournament_name']}** is starting Round 1 with {len(reg_users)} player!"
             await send_note(bot, t['discord_snowflake'], note_ms)
 
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ck_tourn_312(bot, ts, c, t_list):
@@ -457,15 +457,15 @@ async def ck_tourn_312(bot, ts, c, t_list):
 
     for t in t_list:
         if t['status_id'] == ci['id']:
-            reg_users = db.get_tournament_user_info(t['id'])
-            round_times = db.get_round_info(t['id'], 1)[0]
+            reg_users = db.check_get_tournament_user_info(t['id'])
+            round_times = db.check_get_round_info(t['id'], 1)[0]
 
             for u in reg_users:     # For each user in the tournament, set their status and send them a message.
-                start_user = db.start_user_round(t['id'], u['id'], 1)
+                start_user = db.check_start_user_round(t['id'], u['id'], 1)
                 note_ms = f"**{t['tournament_name']}** is starting Round 1. You have until <t:{round_times['end_time']}:F> in your timezone (<t:{round_times['end_time']}:R>) to complete the round."
                 await send_note(bot, u['discord_snowflake'], note_ms)
             
-            db.change_tournament_status(t['id'], ci['next_status'])         # Change to next code
+            db.check_change_tournament_status(t['id'], ci['next_status'])         # Change to next code
             await log_msg(ts, t, ci, c)
 
 async def ann_msg(msg):
