@@ -124,6 +124,7 @@ async def ck_shot_50(bot, ts, c, s_list):
             shot_ins = db.check_update_shotid_to_tournament_status(s['id'], shot_id)
 
             db.check_change_shot_status(s['id'], ci['next_status'])           # Change to next code
+            await log_msg_s(ts, s, ci, c)
 
 async def ck_shot_100(bot, ts, c, s_list):
     """
@@ -159,6 +160,7 @@ async def ck_shot_100(bot, ts, c, s_list):
             await send_note(bot, s['discord_snowflake'], note_ms)
             db.check_add_shot_time(s['shot_id'])                              # Add shot request time to shot_log
             db.check_change_shot_status(s['id'], ci['next_status'])           # Change to next code
+            await log_msg_s(ts, s, ci, c)
 
 async def ck_shot_200(bot, ts, c, s_list):
     """
