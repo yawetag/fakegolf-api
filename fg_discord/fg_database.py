@@ -112,6 +112,7 @@ def check_get_diffs_by_hole_and_location(h, l):
     query = '''
         SELECT
 	        hs.start_diff, hs.end_diff,
+            hs.new_location_id,
             ll.location_name, ll.modifier_name
         FROM hole_shots hs
         LEFT JOIN locations_lookup ll ON hs.new_location_id = ll.id
@@ -164,6 +165,17 @@ def check_get_shots_with_status():
 
     return response
 
+def check_get_target_by_shotid(r, h, s):
+    """Gets target by round `r`, hole `h`, and shot `s`"""
+    shot = "shot_" + str(h)
+    query = f'''
+        SELECT {shot} AS target FROM tournament_targets WHERE round_id=%s AND hole=%s;
+    '''
+    variables=(r, h)
+    response = db_read(query, variables)
+
+    return response
+
 def check_get_tournament_rounds(t, r):
     """Gets tournament_rounds info by tournament_id `t` and round `r`"""
     query = '''
@@ -199,6 +211,24 @@ def check_get_tournament_user_info(t):
 
     return response
 ##### check.py Update #########################################################
+def check_add_result_time(id, t, d, s, lid, lname, lmod):
+    """Adds result information to shot_log."""
+    query = """
+        UPDATE shot_log SET
+            target_num = %s,
+            diff_num = %s,
+            new_shot_num = %s,
+            new_location_id = %s,
+            new_location_name = %s,
+            new_modifier_name = %s,
+            shot_result_time = NOW()
+        WHERE id=%s;
+    """
+    variables = (t, d, s, lid, lname, lmod, id)
+    response = db_update(query, variables)
+
+    return response
+
 def check_add_shot_time(s):
     """Adds current time to `shot_send_time` field of `shots` on id of `s`"""
     query = "UPDATE shot_log SET shot_request_time=NOW() WHERE id=%s;"

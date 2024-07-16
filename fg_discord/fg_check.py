@@ -73,6 +73,7 @@ async def ck_check_shots(bot, ts):
     await ck_shot_50(bot, ts, c, s_list)
     await ck_shot_100(bot, ts, c, s_list)
     await ck_shot_200(bot, ts, c, s_list)
+    await ck_shot_300(bot, ts, c, s_list)
 
     return
 
@@ -179,6 +180,37 @@ async def ck_shot_200(bot, ts, c, s_list):
                 db.check_change_shot_status(s['id'], ci['next_status'])     # Change to next code
                 await log_msg_s(ts, s, ci, c)
 
+async def ck_shot_300(bot, ts, c, s_list):
+    """
+    Shot Status 300 Check.
+    After a shot is entered, calculate the result.
+    """
+    ci = c[300]
+
+    await print_log(ci)
+
+    for s in s_list:
+        if s['status_id'] == ci['id']:
+            shot_info = db.generic_get_all_match_exact('shot_log', 'id', s['shot_id'])[0]
+            loc_list = get_diffs(s)
+
+            # Get the target number
+            target = db.check_get_target_by_shotid(shot_info['round_id'], shot_info['hole_num'], shot_info['shot_num'])
+            target = target[0]['target']
+
+            # Get the difference between the target and shot
+            diff = await get_shot_diff(shot_info['user_shot'], target)
+
+            # Find the applicable result
+            for l in loc_list:
+                if l['start_diff'] <= diff and l['end_diff'] >= diff:
+                    shot_loc = l
+
+            # Add result info to shot_log
+            db.check_add_result_time(s['shot_id'], target, diff, shot_info['user_shot']+1, shot_loc['new_location_id'], shot_loc['location_name'], shot_loc['modifier_name'])
+
+            db.check_change_shot_status(s['id'], ci['next_status'])     # Change to next code
+            await log_msg_s(ts, s, ci, c)
 
 async def ck_tourn_201(bot, ts, c, t_list):
     """
@@ -493,6 +525,13 @@ async def ann_msg(msg):
     """Sends message to announcements channel."""
 
     await send_announcement(None, msg)  # Send announcement to announcements channel
+
+async def get_shot_diff(s, t):
+    """When given the shot `s` and target `t`, return the diff."""
+    # =MOD(nextpitch-firstpitch+499,1000)-499
+    diff = abs(((s-t+499) % 1000) - 499)
+    
+    return diff
 
 async def log_msg_s(ts, s, ci, c):
     """Sends shot log to log channel."""
